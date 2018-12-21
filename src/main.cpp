@@ -66,7 +66,7 @@ void calculate_Attributes(std::vector<pointpattern>& pplist,std::vector<particle
 		double xsum = 0;
 		double ysum = 0;
 		double zsum = 0 ;
-		double xmax = 0 , ymax = 0 , zmax = 0 ;
+		double xmax = -1e10 , ymax = -1e10 , zmax = -1e10 ;
 		double xmin = 1e10 , ymin = 1e10,zmin = 1e10;
 		particleAttr pta;
 
@@ -224,7 +224,7 @@ void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wa
  container con(xmin, xmax, ymin, ymax, zmin, zmax, nx, ny, nz, xpbc, ypbc, zpbc, 32);
 
  std::vector<particleAttr> parAttrlist;
- calculate_Attributes(pplist, parAttrlist,radiation_radius ,epsilon);
+ calculate_Attributes(pplist, parAttrlist,radiation_radius ,epsilon);//we do not need to compute data of all particles for storing them.
  std::cout<<"number of particle list:"<< pplist.size()<<std::endl;
  std::cout<<"number of particle Attributes  list:"<< parAttrlist.size()<<std::endl;
  //now we get Attributes of particles
