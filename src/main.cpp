@@ -12,6 +12,9 @@
 #include "polywriter.hpp"
 #include "postprocessing.hpp"
 #include "Superquadrics.hpp"
+#include <chrono>
+#include <thread>
+
 #include <string>
 #include <vector>
 //#define POLYDATA 1
@@ -226,8 +229,9 @@ void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wa
  std::cout<<"number of particle Attributes  list:"<< parAttrlist.size()<<std::endl;
  //now we get Attributes of particles
  //we just add several particles to the container and at last return only one cell;
- std::vector<polywriter> pwlist;
-
+ //std::vector<polywriter> pwlist;
+ // print out pointpattern file
+ std::string folder = state["outputFolder"];
  for(unsigned int id = 0 ; id <parAttrlist.size();id++){
 	 int currentparticleID = id;
 	 std::cout << "creating label id map:           currentparticleID: "<<currentparticleID ;
@@ -351,7 +355,7 @@ void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wa
 		                             //if(i<2){//just get a normal vector of the first triangle
 		                                 //normalize the vector
 
-
+																		 //std::cout<<"l="<<l<<std::endl;
 		                                 cellNormalTensor[l][0] += wx*wx/area_tmp1;//n11
 		                                 cellNormalTensor[l][1] += wx*wy/area_tmp1;//n12
 		                                 cellNormalTensor[l][2] += wx*wz/area_tmp1;//n13
@@ -379,18 +383,69 @@ void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wa
 		         }
 		         while (cla.inc());
 	  }
-	  pwlist.push_back(pw);
+	  //pwlist.push_back(pw);//we should dump all data out as soon as possible to save memory
 	  std::cout<<std::endl;
-	  std::cout<< "add polywriter successfully! size of pwlist:	" << pwlist.size()<<std::endl;
+	  std::cout<<"writing data.."<<std::endl;//std::cout<< "add polywriter successfully! size of pwlist:	" << pwlist.size()<<std::endl;
+		//output
+		//output polydata if applicable
+	//	if(state["isBatch"] == false)//output polydata when running one job
+	//	{
+			// save point pattern output
+			if(state["savereduced"] == true)
+			{
+					pw.savePointPatternForGnuplot(folder + "/reduced.xyz");
+			}
+
+			std::cout << std::endl;
+			//remove duplicates and label back indices
+			if(state["removeduplicate"] == true){
+				pw.removeduplicates(epsilon, xmin, xmax, ymin, ymax, zmin, zmax);
+			}
+			std::cout << std::endl;
+			bool withboundary = true;
+			withboundary = state["withboundary"];
+			//write poly vtk file
+			if(state["savevtk"] == true)
+			{
+				double rr = state["rr"];
+					pw.savePolyVTK(folder + "/cell.vtk",xmin,xmax,ymin,ymax,zmin,zmax,rr,withboundary);
+			}
+			//pw.saveOnePolyVTK("onecell.vtk",14);//for test
+			//write vtk files of individual cells
+			if(state["cellVTK"] == true)
+			{
+				std::string cellIDsfile = state["cellIDsfile"];
+				if(cellIDsfile.empty())
+					{
+							std::cerr << "The file of cellIDs is not valid." << std::endl;
+							//return -1;
+					}
+				pw.outputCellVTK(cellIDsfile,folder+"/onecell");
+			}
+
+			//write pov file
+			if(state["savepov"] == true)
+			{
+				double rr = state["rr"];
+					pw.savePolyPOV(folder + "/cell.pov",xmin,xmax,ymin,ymax,zmin,zmax,rr);
+			}
+			// Write poly file for karambola
+			if(state["savepoly"] == true)
+			{
+	//		    std::cout << "writing poly file" << std::endl;
+					std::ofstream file;
+					std::string polypath =folder + "/cell.poly";
+					file.open(polypath.c_str(),std::ios::out);
+					file << pw;
+					file.close();
+			}
+
  std::cout << std::endl;
  con.clear();
  }
 //}
 //void output(State& state,std::string posfile,std::string sequenceNum,std::string folder,std::vector<pointpattern> pplist,std::vector<polywriter>pwlist
 //		){
-
-    // print out pointpattern file
- 	std::string folder = state["outputFolder"];
     if (state["savesurface"] == true)
     {
         std::cout << "save point pattern file" << std::endl;
@@ -419,7 +474,7 @@ void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wa
             //just print cell volumes
             //fprintf(fp2,"%g \n",cellVolumes[iter->first]);
             fp2 <<  std::setprecision(12) << cellVolumes[iter->first] << std::endl;
-       
+
         }else{//print porosity
             //porosity = 1.0 - particleVolumes[iter->first]/cellVolumes[iter->first];
             //fprintf(fp2,"%g %g %g %g\n",cellVolumes[iter->first],particleVolumes[iter->first],cellSurfaceArea[iter->first],particleSurfaceArea[iter->first]);
@@ -430,66 +485,12 @@ void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wa
             << " " <<cna[0]<< " " <<cna[1]<< " " <<cna[2]<< " " <<cna[3]<< " " <<cna[4]<< " " <<cna[5]
              << std::endl;
 
-        }    
+        }
     }
     //fclose(fp2);
     fp2.close();
 
-	//output polydata if applicable
-//	if(state["isBatch"] == false)//output polydata when running one job
-//	{
-		for(unsigned int i = 0;i<pwlist.size();i++){
-		polywriter pw = pwlist.at(i);
-		// save point pattern output
-		if(state["savereduced"] == true)
-		{
-		    pw.savePointPatternForGnuplot(folder + "/reduced.xyz");
-		}
 
-		std::cout << std::endl;
-		//remove duplicates and label back indices
-		if(state["removeduplicate"] == true){
-			pw.removeduplicates(epsilon, xmin, xmax, ymin, ymax, zmin, zmax);
-		}
-		std::cout << std::endl;
-		bool withboundary = true;
-		withboundary = state["withboundary"];
-		//write poly vtk file
-		if(state["savevtk"] == true)
-		{
-			double rr = state["rr"];
-		    pw.savePolyVTK(folder + "/cell.vtk",xmin,xmax,ymin,ymax,zmin,zmax,rr,withboundary);
-		}
-		//pw.saveOnePolyVTK("onecell.vtk",14);//for test
-		//write vtk files of individual cells
-		if(state["cellVTK"] == true)
-		{	
-			std::string cellIDsfile = state["cellIDsfile"];
-			if(cellIDsfile.empty())
-		    {
-		        std::cerr << "The file of cellIDs is not valid." << std::endl;
-		        //return -1;
-		    }
-			pw.outputCellVTK(cellIDsfile,folder+"/onecell");
-		}
-	
-		//write pov file
-		if(state["savepov"] == true)
-		{
-			double rr = state["rr"];
-		    pw.savePolyPOV(folder + "/cell.pov",xmin,xmax,ymin,ymax,zmin,zmax,rr);
-		}
-		// Write poly file for karambola
-		if(state["savepoly"] == true)
-		{
-//		    std::cout << "writing poly file" << std::endl;
-		    std::ofstream file;
-		    std::string polypath =folder + "/cell.poly";
-		    file.open(polypath.c_str(),std::ios::out);
-		    file << pw;
-		    file.close();
-		}
-		}
 //	}
     //#endif
 
@@ -566,7 +567,7 @@ void process_voronoi(State& state,std::string posfile,std::string wallfile,std::
                     double area=0,volume=0;
 
                     extractSuperquadric(pp, ids, scale,set.parameter,w_slices,h_slices,area,volume);
-                    ids ++;
+
                     std::cout << "points created: " << pp.points.size() << std::endl << std::endl;
                     //store all particle in a list pplist
                     pplist.push_back(pp);
@@ -577,6 +578,7 @@ void process_voronoi(State& state,std::string posfile,std::string wallfile,std::
                     std::vector<double> normalAreaComp={0.,0.,0.,0.,0.,0.};//six components
                     cellNormalTensor[ids] = normalComp;
                     cellNormalAreaTensor[ids] = normalAreaComp;
+										ids ++;//particle id from 0. FIXME:We need read the particle id from the local file. Here the ids are sequencially numbered.
             }
         }
     }//end parameterized particle surface reading
@@ -594,7 +596,8 @@ local_voronoi(state,pplist,wallfile,radiation_radius,epsilon,sequenceNum);
 }
 int main (int argc, char* argv[])
 {
-
+	std::cout << "DEBUG: accessfile() called by process " << ::getpid() << " (parent: " << ::getppid() << ")" << std::endl;
+	std::this_thread::sleep_for(std::chrono::seconds(10));//sleep for gdb debug
     // command line argument parsing
     if(argc != 2 )
     {
@@ -611,7 +614,7 @@ int main (int argc, char* argv[])
     const std::string filename = argv[1];
     //std::string folder = argv[2];
 
-    
+
     // lua state for the global parameter file
     //Not used in the enhanced version
     State state {true};
@@ -631,7 +634,7 @@ int main (int argc, char* argv[])
         return -1;
     }
     */
-    // sanitize folder path and create folder 
+    // sanitize folder path and create folder
     //char lastCharOfFolder = *folder.rbegin();
     //if (lastCharOfFolder != '/')
     //    folder += '/';
@@ -656,7 +659,7 @@ int main (int argc, char* argv[])
             std::cout<<"Job "<<i+1<<" of "<<jobNum<< " begins..."<<std::endl;
             posfile = DatasetDir + posFilePrefix + std::to_string(i*jobNumInterval) + posFileSuffix;
             wallfile = DatasetDir + wallFilePrefix + std::to_string(i*jobNumInterval) + wallFileSuffix;
-	//process_voronoi(state,posfile,wallfile,std::to_string(i*jobNpostprocessingumInterval)); 
+	//process_voronoi(state,posfile,wallfile,std::to_string(i*jobNpostprocessingumInterval));
             process_voronoi(state,posfile,wallfile,std::to_string(i*jobNumInterval));
             std::cout<<"Job "<<i+1<<" of "<<jobNum<< " finished!"<<std::endl;
         }
@@ -665,8 +668,8 @@ int main (int argc, char* argv[])
         std::string posfile = state["positionfile"];
         std::string wallfile = state["wallfile"];
 		//the most important step is the "process_voronoi"
-		
-        process_voronoi(state,posfile,wallfile,char2string("")); 
+
+        process_voronoi(state,posfile,wallfile,char2string(""));
     }
     return 0;
 }
