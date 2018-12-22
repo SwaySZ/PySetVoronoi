@@ -665,7 +665,11 @@ void process_voronoi2(State& state,std::string posfile,std::string wallfile,std:
 							}
 						}
 						//compute Voronoi cells of all particles one by one
+						//#ifdef DEBUG_CM
+						//for(int i = 13 ;i< 14;i++){
+						//#else
 						for(int i = 0 ;i< parAttrlist.size();i++){
+						//#endif
 							CellMachine CM = CellMachine(in_folder,out_folder);
 							//loading point clouds from local files
 							CM.pushPoints(parAttrlist[i]);

@@ -1,4 +1,5 @@
 #include "CellMachine.hpp"
+
 void CellMachine::initial(){
   cid = -1;
   pid = 0;
@@ -20,8 +21,10 @@ CellMachine::CellMachine(std::string input_folder,std::string output_folder){
   cellVTK = true;
   savepov = false;
   savepoly = false;
+  delta = 0.1e-3;//
+  con = NULL;
   initial();
-  nx = ny = nz =50;
+  nx = ny = nz =40;
 	//to do,
 }
 void CellMachine::reset(){
@@ -56,7 +59,7 @@ void  CellMachine::getFaceVerticesOfFace( std::vector<int>& f, unsigned int k, s
 }
 //test a point is inside the box of this cell machine
 bool CellMachine::isInBox(double x, double y, double z){
-  bool ret = (x<xmin)||(x>xmax)||(y<ymin)||(y>ymax)||(z<zmin)||(z>zmax);
+  bool ret = (x<xmin+delta)||(x>xmax-delta)||(y<ymin+delta)||(y>ymax-delta)||(z<zmin+delta)||(z>zmax-delta);
   return !ret;
 }
 void CellMachine::readWall(std::string filename)
@@ -119,10 +122,12 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
     std::ifstream infile;
     infile.open(filename.data(),std::ifstream::in);
     //testing
-    //std::ofstream fp2;
-    //std::string outfile = "./test.xyz";
-    //std::cout<<"particleID="<<particleId<<filename<<std::endl;
-    //fp2.open(outfile.c_str(),std::ios::out|std::ios::app);
+    #ifdef DEBUG_CM
+    std::ofstream fp2;
+    std::string outfile = "./test.xyz";
+    std::cout<<"particleID="<<particleId<<filename<<std::endl;
+    fp2.open(outfile.c_str(),std::ios::out|std::ios::app);
+    #endif
     if (infile.fail())
     {
         std::cout << "Cannot load file " << filename << std::endl;
@@ -156,14 +161,17 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
               if(isInBox(xyz[0],xyz[1],xyz[2])){
                 con->put(pid, xyz[0],xyz[1],xyz[2]);
                 labelidmap.push_back(particleId);
-                //fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
+                #ifdef DEBUG_CM
+                fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
+                #endif
                 ++pid;
               }
-              //fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
             }else{
               con->put(pid, xyz[0],xyz[1],xyz[2]);
               labelidmap.push_back(particleId);
-              //fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
+              #ifdef DEBUG_CM
+              fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
+              #endif
               ++pid;
             }
 
@@ -193,6 +201,10 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   //create a voro container
   std::cout<<"creating a container..."<<std::endl;
   //std::cout<<xmin<<" "<<xmax<<" "<<ymin<<" "<<ymax<<" "<<zmin<<" "<<zmax<<nx<<ny<<nz<<std::endl;
+  if(con){
+    con->clear();
+    delete con;
+  }
   con = new voro::container(xmin, xmax, ymin, ymax, zmin, zmax, nx, ny, nz, xpbc, ypbc, zpbc, 32);
   //std::cout<<"con="<<con<<std::endl;
   //con = con_tmp;
@@ -322,6 +334,9 @@ void CellMachine::processing(){
 							{
 									// compare if id for this cell and the face-neighbor is the same
 									int n = w[k];   // ID of neighbor cell
+                  //std::cout<<"n="<<n<<"size="<<labelidmap.size()<<std::endl;
+                  //not sure why n could be negative
+                  if(n<0) continue;
 									if (labelidmap[n] == l)
 									{
 											// discard this neighbour/face, since they have the same id

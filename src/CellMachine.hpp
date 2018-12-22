@@ -1,5 +1,6 @@
 #ifndef __CELL_MACHINE__
 #define __CELL_MACHINE__
+#define DEBUG_CM_no
 /*
  * =====================================================================================
  *
@@ -50,6 +51,7 @@ private:
   std::vector<int> labelidmap;
   //particleAttr pAttr;
   double rr;//resolution used to clip facets of a cell
+  double delta;//shrink the box to get gaps between points and box-walls
   //cell properties
   int cid;//cell id, also particle id
   double cellVolume;
