@@ -1,28 +1,29 @@
 --process multi-jobs in batch
 isBatch = false
-DatasetDir = "./sphere/"
+DatasetDir = "./input/"
 
 --folder for output files
-outputFolder = "./sphere/output"
+outputFolder = "./output"
+inputFolder = "./input"
 
 --process only one job
-positionfile = "./sphere/sphere0.dat"
-wallfile = "./sphere/Walls0.dat"
+positionfile = "./input/Particles.dat"
+wallfile = "./input/walls.dat"
 RawData = false
 
 
 cellVTK = true
-cellIDsfile = "./sphere/ids.dat"
+cellIDsfile = "./ids.dat"
 
 
-w_slices = 20
-h_slices = 20
+w_slices = 30
+h_slices = 30
 
 nx = 120
 ny = 120
 nz = 120
 
-scale = 0.05
+scale = 0.01e-3
 
 epsilon = 1e-6
 rr=0.01

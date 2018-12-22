@@ -118,6 +118,11 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
 {   //flag: if true, check inside or outside the box
     std::ifstream infile;
     infile.open(filename.data(),std::ifstream::in);
+    //testing
+    //std::ofstream fp2;
+    //std::string outfile = "./test.xyz";
+    //std::cout<<"particleID="<<particleId<<filename<<std::endl;
+    //fp2.open(outfile.c_str(),std::ios::out|std::ios::app);
     if (infile.fail())
     {
         std::cout << "Cannot load file " << filename << std::endl;
@@ -151,11 +156,14 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
               if(isInBox(xyz[0],xyz[1],xyz[2])){
                 con->put(pid, xyz[0],xyz[1],xyz[2]);
                 labelidmap.push_back(particleId);
+                //fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
                 ++pid;
               }
+              //fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
             }else{
               con->put(pid, xyz[0],xyz[1],xyz[2]);
               labelidmap.push_back(particleId);
+              //fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
               ++pid;
             }
 
@@ -167,6 +175,7 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
     //std::cout << "Lines loaded: " << linesloaded << std::endl << std::endl;
 
     infile.close();
+    //fp2.close();
 }
 
 void CellMachine::pushPoints(particleAttr& pAttr){
@@ -174,12 +183,13 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   //read wall boundary
   readWall(in_folder + "/walls.dat");
   //define the box size by considering the global wall
-  xmin = std::max(pAttr.centerx - 0.5*pAttr.xrange*4.0, wall_xmin);
-  xmax = std::min(pAttr.centerx + 0.5*pAttr.xrange*4.0, wall_xmax);
-  ymin = std::max(pAttr.centery - 0.5*pAttr.yrange*4.0, wall_ymin);
-  ymax = std::min(pAttr.centery + 0.5*pAttr.yrange*4.0, wall_ymax);
-  zmin = std::max(pAttr.centerz - 0.5*pAttr.zrange*4.0, wall_zmin);
-  zmax = std::min(pAttr.centerz + 0.5*pAttr.zrange*4.0, wall_zmax);
+
+  xmin = std::max(pAttr.centerx - pAttr.xrange*2.0, wall_xmin);
+  xmax = std::min(pAttr.centerx + pAttr.xrange*2.0, wall_xmax);
+  ymin = std::max(pAttr.centery - pAttr.yrange*2.0, wall_ymin);
+  ymax = std::min(pAttr.centery + pAttr.yrange*2.0, wall_ymax);
+  zmin = std::max(pAttr.centerz - pAttr.zrange*2.0, wall_zmin);
+  zmax = std::min(pAttr.centerz + pAttr.zrange*2.0, wall_zmax);
   //create a voro container
   std::cout<<"creating a container..."<<std::endl;
   //std::cout<<xmin<<" "<<xmax<<" "<<ymin<<" "<<ymax<<" "<<zmin<<" "<<zmax<<nx<<ny<<nz<<std::endl;
@@ -192,8 +202,8 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   readParticle(in_folder + "/"+std::to_string(cid)+".dat", false, cid);//read the particle itself
   //read the other surrounding particles
   for(std::vector<int>::iterator it = surroundedID.begin();it!=surroundedID.end();it++){
-    std::cout<<"spid="<<*it<<std::endl;
-		readParticle(in_folder + "/"+std::to_string(*it)+".dat", true, *it);
+    //std::cout<<"spid="<<*it<<std::endl;
+		readParticle(in_folder + "/"+std::to_string((*it))+".dat", true, (*it));
 	}
 }
 void CellMachine::writeGlobal(){

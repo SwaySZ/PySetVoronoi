@@ -589,8 +589,9 @@ void process_voronoi(State& state,std::string posfile,std::string wallfile,std::
 }
 void process_voronoi2(State& state,std::string posfile,std::string wallfile,std::string sequenceNum){
 
-    std::string folder = state["outputFolder"];
-    if(folder.empty())
+    std::string in_folder = state["inputFolder"];
+		std::string out_folder = state["outputFolder"];
+    if(out_folder.empty())
     {
         std::cerr << "outfilepath is not valid" << std::endl;
         return;
@@ -628,7 +629,7 @@ void process_voronoi2(State& state,std::string posfile,std::string wallfile,std:
 						std::vector<particleAttr> parAttrlist;
 						//preprocessing data
 						std::ofstream fp1;
-						std::string path1 = folder + "/parproperties.txt";
+						std::string path1 = out_folder + "/parproperties.txt";
 						fp1.open(path1.c_str(),std::ios::out);
 						fp1 << "#particleID particleVolume particleSurfaceArea" << std::endl;
 						for(auto it = setlist.begin(); it != setlist.end(); ++it )
@@ -638,7 +639,7 @@ void process_voronoi2(State& state,std::string posfile,std::string wallfile,std:
 							cellVolumes[ids] = 0.0;
 							cellSurfaceArea[ids] = 0.0;
 							double area=0,volume=0;
-							std::string outfile = folder + "/"+std::to_string(ids)+".dat";//store point clouds of particles
+							std::string outfile = in_folder + "/"+std::to_string(ids)+".dat";//store point clouds of particles
 							particleAttr pa;
 							pointCloud_Superquadric(ids, outfile, scale,set.parameter,w_slices,h_slices,area,volume,pa);
 							parAttrlist.push_back(pa);
@@ -664,8 +665,8 @@ void process_voronoi2(State& state,std::string posfile,std::string wallfile,std:
 							}
 						}
 						//compute Voronoi cells of all particles one by one
-						for(int i = 0 ;i< 1/*parAttrlist.size()*/;i++){
-							CellMachine CM = CellMachine(folder,folder);
+						for(int i = 0 ;i< parAttrlist.size();i++){
+							CellMachine CM = CellMachine(in_folder,out_folder);
 							//loading point clouds from local files
 							CM.pushPoints(parAttrlist[i]);
 							//comupute cells
@@ -697,6 +698,7 @@ int main (int argc, char* argv[])
     const std::string filename = argv[1];
     //std::string folder = argv[2];
 
+		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
     // lua state for the global parameter file
     //Not used in the enhanced version
@@ -754,5 +756,8 @@ int main (int argc, char* argv[])
 
         process_voronoi2(state,posfile,wallfile,char2string(""));
     }
+		std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+	 auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
+	 std::cout<<"Time ellapsed is:"<<duration<<" seconds"<<std::endl;
     return 0;
 }
