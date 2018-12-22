@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright 2016 Simon Weis and Philipp Schoenhoefer
 
 This file is part of Pomelo.
@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Pomelo.  If not, see <http://www.gnu.org/licenses/>.
 
-The development of Pomelo took place at the Friedrich-Alexander University of Erlangen and was funded by the German Research Foundation (DFG) Forschergruppe FOR1548 "Geometry and Physics of Spatial Random Systems" (GPSRS). 
+The development of Pomelo took place at the Friedrich-Alexander University of Erlangen and was funded by the German Research Foundation (DFG) Forschergruppe FOR1548 "Geometry and Physics of Spatial Random Systems" (GPSRS).
 */
 #ifndef POINTPATTERN_GUARD
 #define POINTPATTERN_GUARD
@@ -60,7 +60,7 @@ public:
         int oldl = p.points[0].l;
 
 
-        for(int i = 0;i<p.points.size();i++){
+        for(unsigned int i = 0;i<p.points.size();i++){
         	if(oldl != p.points.at(i).l){
         		f << "\n\n";
         		oldl = p.points.at(i).l;
@@ -79,9 +79,9 @@ public:
 	double yy = p.points[0].y;
 	double zz = p.points[0].z;
         int oldf = p.points[0].faceID;
-	int oldc = p.points[0].cellID;
+	unsigned int oldc = p.points[0].cellID;
 
-        for(int i =0;i<p.points.size();i++){
+        for(unsigned int i =0;i<p.points.size();i++){
         	if(oldf != p.points.at(i).faceID){
         		f << oldc << " " <<  std::setw(8)<< xx << " " << std::setw(8) << yy << " " << std::setw(8) << zz << "\n\n\n";
         	      oldf = p.points.at(i).faceID;

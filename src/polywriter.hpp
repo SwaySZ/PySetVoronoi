@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright 2016 Simon Weis and Philipp Schoenhoefer
 revised by Sway Zhao
 
@@ -17,7 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Pomelo.  If not, see <http://www.gnu.org/licenses/>.
 
-The development of Pomelo took place at the Friedrich-Alexander University of Erlangen and was funded by the German Research Foundation (DFG) Forschergruppe FOR1548 "Geometry and Physics of Spatial Random Systems" (GPSRS). 
+The development of Pomelo took place at the Friedrich-Alexander University of Erlangen and was funded by the German Research Foundation (DFG) Forschergruppe FOR1548 "Geometry and Physics of Spatial Random Systems" (GPSRS).
 */
 #ifndef POLYWRITER_H_123456
 #define POLYWRITER_H_123456
@@ -80,8 +80,8 @@ public:
             for (auto it2 = it->second.rbegin(); it2 != it->second.rend(); ++it2)
             {
 		        bool doppelt = false;
-		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){ 
-			        if(testing[kk] == (*it2) ){ 
+		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){
+			        if(testing[kk] == (*it2) ){
 				        doppelt = true;
 				        break;
 			        }
@@ -120,12 +120,12 @@ public:
         //writing the file head
         f << "# vtk DataFile Version 2.0" << std::endl;
         f << "Sway data processing" << std::endl;
-        f << "ASCII" << std::endl; 
+        f << "ASCII" << std::endl;
         f << "DATASET POLYDATA" << std::endl;
         f << "POINTS   "<<this->p.points.size() + 1 <<" float" << std::endl;//index is from 0 in VTK
         f << "0   0   0" << std::endl;//putting a point to take the place.
-    
-   
+
+
         f << std::fixed;
         for(auto it =  this->p.points.begin();
                 it != this->p.points.end();
@@ -149,12 +149,12 @@ public:
 	        std::vector<unsigned int> testing;
             bool boundary = true;//face on the boundry?
             double xx,yy,zz;
-          
+
             for (auto it2 = it->second.rbegin(); it2 != it->second.rend(); ++it2)
-            {   
+            {
 		        bool doppelt = false;
-		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){ 
-			        if(testing[kk] == (*it2) ){ 
+		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){
+			        if(testing[kk] == (*it2) ){
 				        doppelt = true;
 				        break;
 			        }
@@ -177,11 +177,11 @@ public:
                         xx = p.points[(*itt)-1].x;
                         yy = p.points[(*itt)-1].y;
                         zz = p.points[(*itt)-1].z;
-                        
-                        if (!((xx>xmax-rr)||(xx<xmin+rr)||(yy>ymax-rr)||(yy<ymin+rr)||(zz>zmax-rr)||(zz<zmin+rr))){  
+
+                        if (!((xx>xmax-rr)||(xx<xmin+rr)||(yy>ymax-rr)||(yy<ymin+rr)||(zz>zmax-rr)||(zz<zmin+rr))){
                                 boundary = false;
                                 break;
-                           
+
                         }
                     }
                 }
@@ -192,18 +192,18 @@ public:
                 for(unsigned int kk = 0; kk < testing.size(); kk++ ){
 		            polydata.push_back(testing[kk]);
 	    	    }
-	      
+
 	        }
 	        else { std::cout << testing.size() << " " << cellID << std::endl;}
         }
-        
+
         f << "POLYGONS " << face_num <<" "<<enterty_num<< std::endl;
         for(unsigned long kk = 0; kk < polydata.size(); kk++ ){
             f << polydata[kk]<<"   ";
         }
 
     f.close();
-        
+
     };
 
     void saveOnePolyVTK(std::string filename, unsigned int targetCellID)
@@ -214,12 +214,12 @@ public:
         //writing the file head
         f << "# vtk DataFile Version 2.0" << std::endl;
         f << "Sway data processing" << std::endl;
-        f << "ASCII" << std::endl; 
+        f << "ASCII" << std::endl;
         f << "DATASET POLYDATA" << std::endl;
         f << "POINTS   "<<this->p.points.size() + 1 <<" float" << std::endl;//index is from 0 in VTK
         f << "0   0   0" << std::endl;//putting a point to take the place.
-    
-   
+
+
         f << std::fixed;
         for(auto it =  this->p.points.begin();
                 it != this->p.points.end();
@@ -242,14 +242,14 @@ public:
             unsigned int cellID = this->faceCellMap.at(faceID);
             if (cellID != targetCellID) continue;
 	        std::vector<unsigned int> testing;
-           
-        
-          
+
+
+
             for (auto it2 = it->second.rbegin(); it2 != it->second.rend(); ++it2)
-            {   
+            {
 		        bool doppelt = false;
-		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){ 
-			        if(testing[kk] == (*it2) ){ 
+		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){
+			        if(testing[kk] == (*it2) ){
 				        doppelt = true;
 				        break;
 			        }
@@ -258,26 +258,26 @@ public:
                 testing.push_back( (*it2) );
             }
 	        if(2 < testing.size()){
-              
-                
+
+
 	            face_num += 1;
 	            enterty_num += testing.size() + 1;
                 polydata.push_back(testing.size());
                 for(unsigned int kk = 0; kk < testing.size(); kk++ ){
 		            polydata.push_back(testing[kk]);
-                   
+
 	    	    }
-	      
+
 	        }
 	        else { std::cout << testing.size() << " " << cellID << std::endl;}
         }
-        
+
         f << "POLYGONS " << face_num <<" "<<enterty_num<< std::endl;
         for(unsigned long kk = 0; kk < polydata.size(); kk++ ){
             f << polydata[kk]<<"   ";
         }
     f.close();
-        
+
     };
 
     void saveOnePolyVTKnew(std::string filename, unsigned int targetCellID)
@@ -298,17 +298,18 @@ public:
             ++ it)
         {
             unsigned int faceID = it->first;
+
             unsigned int cellID = this->faceCellMap.at(faceID);
             if (cellID != targetCellID) continue;
 	        std::vector<unsigned int> testing;
-           
-        
-          
+
+
+
             for (auto it2 = it->second.rbegin(); it2 != it->second.rend(); ++it2)
-            {   
+            {
 		        bool doppelt = false;
-		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){ 
-			        if(testing[kk] == (*it2) ){ 
+		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){
+			        if(testing[kk] == (*it2) ){
 				        doppelt = true;
 				        break;
 			        }
@@ -317,18 +318,18 @@ public:
                 testing.push_back( (*it2) );
             }
 	        if(2 < testing.size()){
-              
-                
+
+
 	            face_num += 1;
 	            enterty_num += testing.size() + 1;
                 polydata.push_back(testing.size());
                 for(unsigned int kk = 0; kk < testing.size(); kk++ ){
 		            //polydata.push_back(testing[kk]);
-					vtkPoints.push_back(this->p.points[testing[kk]-1]);
-					numPoints++;
+      					vtkPoints.push_back(this->p.points[testing[kk]-1]);
+      					numPoints++;
                     polydata.push_back(numPoints-1);
 	    	    }
-	      
+
 	        }
 	        else { std::cout << testing.size() << " " << cellID << std::endl;}
         }
@@ -336,7 +337,7 @@ public:
         //writing the file head
         f << "# vtk DataFile Version 2.0" << std::endl;
         f << "Sway data processing" << std::endl;
-        f << "ASCII" << std::endl; 
+        f << "ASCII" << std::endl;
         f << "DATASET POLYDATA" << std::endl;
         f << "POINTS   "<<vtkPoints.size() <<" float" << std::endl;//index is from 0 in VTK
 		f << std::fixed;
@@ -349,10 +350,10 @@ public:
         //polygon
         f << "POLYGONS " << face_num <<" "<<enterty_num<< std::endl;
         for(unsigned long kk = 0; kk < polydata.size(); kk++ ){
-            f << polydata[kk]<<"   ";	
+            f << polydata[kk]<<"   ";
         }
     f.close();
-        
+
     };
 	void outputCellVTK(std::string filename,std::string outfileprefix)
 	{
@@ -368,14 +369,14 @@ public:
 		unsigned int linesloaded = 0;
 		//std::getline(infile, line);
 		std::cout<<"Warning!"<<std::endl;
-		std::vector<int> targetCellIDs;  
+		std::vector<int> targetCellIDs;
 		while (std::getline(infile, line))
 		{
 		    if(line.find("#")!=std::string::npos) continue; // ignore comment lines
 
 		    std::vector<std::string> xyzstring = line.split(' ');//
 		    //std::cout<<xyzstring[0]<<std::endl;
-		    
+
 		    //xyz point
 		    for (auto it = xyzstring.begin(); it != xyzstring.end(); ++it)
 		    {
@@ -411,12 +412,12 @@ public:
 	        std::vector<unsigned int> testing;
             bool boundary = true;//face on the boundry?
             double xx,yy,zz;
-           
+
             for (auto it2 = it->second.rbegin(); it2 != it->second.rend(); ++it2)
-            {   
+            {
 		        bool doppelt = false;
-		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){ 
-			        if(testing[kk] == (*it2) ){ 
+		        for(unsigned int kk = 0; kk < testing.size(); kk++ ){
+			        if(testing[kk] == (*it2) ){
 				        doppelt = true;
 				        break;
 			        }
@@ -426,34 +427,34 @@ public:
             }
 	        if(2 < testing.size()){
                 //check the point is on the boundary or not
-                
+
                 for(auto itt = testing.begin();itt != testing.end(); ++itt){
                     xx = p.points[(*itt)-1].x;
                     yy = p.points[(*itt)-1].y;
                     zz = p.points[(*itt)-1].z;
-                    
-                    if (!((xx>xmax-rr)||(xx<xmin+rr)||(yy>ymax-rr)||(yy<ymin+rr)||(zz>zmax-rr)||(zz<zmin+rr))){  
+
+                    if (!((xx>xmax-rr)||(xx<xmin+rr)||(yy>ymax-rr)||(yy<ymin+rr)||(zz>zmax-rr)||(zz<zmin+rr))){
                             boundary = false;
                             break;
                     }
                 }
-                if (boundary){continue;}              
+                if (boundary){continue;}
                 //draw a face as a polygon
 				f<<"polygon {"<<testing.size()<<",";
                 for(auto itt = testing.begin();itt != testing.end(); ++itt){
                     xx = p.points[(*itt)-1].x;
                     yy = p.points[(*itt)-1].y;
                     zz = p.points[(*itt)-1].z;
-                    f << " <"<<xx*100.0<<","<<yy*100.0<<","<<zz*100.0<<">"; 
+                    f << " <"<<xx*100.0<<","<<yy*100.0<<","<<zz*100.0<<">";
                 }
                 f<<"\nscale 0.01}\n";//scaling using for avoiding "Possible Parse Error: Singular matrix in MInvers"
-               
+
 	        }
 	        else { std::cout << testing.size() << " " << cellID << std::endl;}
         }
-        
+
     f.close();
-        
+
     };
 /*	void save_cells_pov( std::string filename)
     {
@@ -472,8 +473,8 @@ public:
             for (auto it2 = it->second.rbegin(); it2 != it->second.rend(); ++it2)
             {
 			bool doppelt = false;
-			for(unsigned int kk = 0; kk < testing.size(); kk++ ){ 
-				if(testing[kk] == (*it2) ){ 
+			for(unsigned int kk = 0; kk < testing.size(); kk++ ){
+				if(testing[kk] == (*it2) ){
 					doppelt = true;
 					break;
 				}
@@ -488,7 +489,7 @@ public:
 				//file1 << "sphere{<"<<positionlist[i*3]<<","<<positionlist[i*3+1]<<","<<positionlist[i*3+2]<<">,r}\n";
 				//index = (i+1)%3*3;
 				//file1 << "cylinder{<"<<positionlist[i*3]<<","<<positionlist[i*3+1]<<","<<positionlist[i*3+2]<<">,<"<<positionlist[index]<<","<<positionlist[index+1]<<","<<positionlist[index+2]<<">,r}\n";
-						
+
 				f << testing[kk] << " ";
 				}
 		        	f << "< c(0, 0, 0, " << cellID << ")" << std::endl;
@@ -497,10 +498,10 @@ public:
 		    }
 
 		//
-		
+
 		//close the file
         file.close();
-    }  
+    }
         */
     void removeduplicates (double epsilon, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
     {
@@ -559,7 +560,7 @@ public:
             {
                 target += fivepercentSteps;
                 std::cout << static_cast<int>(static_cast<double>(i)/static_cast<double>(faces.size())*100) << " \%\t"<< std::flush;
-            } 
+            }
             unsigned int j = 0;
             for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
             {
@@ -590,8 +591,8 @@ public:
         std::cout << std::endl;
     }
 
-
-
+    polywriter(){};
+    ~polywriter(){};
     pointpattern p; // holds all the points
     std::map<unsigned int, unsigned int> faceCellMap;   // first is face id, second is cell id
     std::map<unsigned int, std::vector<unsigned int > > faces;

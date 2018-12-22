@@ -5,6 +5,8 @@
 #include <limits>
 #include <cmath>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "include.hpp"
 #include "fileloader.hpp"
 #include "pointpattern.hpp"
@@ -12,11 +14,9 @@
 #include "polywriter.hpp"
 #include "postprocessing.hpp"
 #include "Superquadrics.hpp"
+#include "CellMachine.hpp"
 #include <chrono>
 #include <thread>
-
-#include <string>
-#include <vector>
 //#define POLYDATA 1
 extern "C"{
 #include <lualib.h>
@@ -26,17 +26,8 @@ extern "C"{
 std::string version = "0.5.0";
 
 using namespace sel;
-using namespace voro;
-struct particleAttr{
-		int ID;
-		double centerx;
-		double centery;
-		double centerz;
-		double xmin,xmax,ymin,ymax,zmin,zmax;
-		double xrange,yrange,zrange;
-		double radius;
-		std::vector<int> surroundedID;
-};
+//using namespace voro;
+
 std::string char2string(const char* charstr){
         std::string s(charstr);
         return s;
@@ -164,6 +155,8 @@ std::map < unsigned long long, double > particleSurfaceArea;//
 std::map < unsigned long long, std::vector<double> > cellNormalTensor;//six components of normal tensor of a cell surface, i.e., n11,n12,n13,n22,n23,n33.
 std::map < unsigned long long, std::vector<double> > cellNormalAreaTensor;//six components of normal by area tensor of a cell surface, i.e., n11*a,n12*a,n13*a,n22*a,n23*a,n33*a.
 fileloader loader;
+
+
 void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wallfile,double radiation_radius ,double epsilon,std::string sequenceNum)
 {
 //	std::vector<particleAttr> parAttrlist;
@@ -221,7 +214,7 @@ void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wa
     std::cout << std::endl;
 
 
- container con(xmin, xmax, ymin, ymax, zmin, zmax, nx, ny, nz, xpbc, ypbc, zpbc, 32);
+ voro::container con(xmin, xmax, ymin, ymax, zmin, zmax, nx, ny, nz, xpbc, ypbc, zpbc, 32);
 
  std::vector<particleAttr> parAttrlist;
  calculate_Attributes(pplist, parAttrlist,radiation_radius ,epsilon);//we do not need to compute data of all particles for storing them.
@@ -262,7 +255,7 @@ void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wa
 	 // merge voronoi cells to set voronoi diagram
 	 std::cout << "merge voronoi cells :    ";
 	 // loop over all voronoi cells
-	 c_loop_all cla(con);
+	 voro::c_loop_all cla(con);
 	 // cell currently worked on
 	  unsigned long long status = 0;
 	  // counter for process output
@@ -275,7 +268,7 @@ void local_voronoi(State& state,std::vector<pointpattern>& pplist,std::string wa
 		  std::cout << "started\n" << std::flush;
 		         do
 		         {
-		             voronoicell_neighbor c;
+		             voro::voronoicell_neighbor c;
 		             status++;
 		             if(con.compute_cell(c,cla))
 		             {
@@ -553,7 +546,7 @@ void process_voronoi(State& state,std::string posfile,std::string wallfile,std::
 
             for(auto it = setlist.begin(); it != setlist.end(); ++it )
             {
-				pointpattern pp;
+								pointpattern pp;
                 // read one particle from the position file
                 particleparameterset set = (*it);
                 // put all parameters for this particle to the lua readstate
@@ -562,23 +555,23 @@ void process_voronoi(State& state,std::string posfile,std::string wallfile,std::
                     //readstate["s"][i] = set.get(i);
                // }
 
-                    cellVolumes[ids] = 0.0;
-                    cellSurfaceArea[ids] = 0.0;
-                    double area=0,volume=0;
+                cellVolumes[ids] = 0.0;
+                cellSurfaceArea[ids] = 0.0;
+                double area=0,volume=0;
 
-                    extractSuperquadric(pp, ids, scale,set.parameter,w_slices,h_slices,area,volume);
+                extractSuperquadric(pp, ids, scale,set.parameter,w_slices,h_slices,area,volume);
 
-                    std::cout << "points created: " << pp.points.size() << std::endl << std::endl;
-                    //store all particle in a list pplist
-                    pplist.push_back(pp);
-                    particleVolumes[ids] = volume;
-                    particleSurfaceArea[ids] = area;
-                    //surface tensors
-                    std::vector<double> normalComp={0.,0.,0.,0.,0.,0.};//six components
-                    std::vector<double> normalAreaComp={0.,0.,0.,0.,0.,0.};//six components
-                    cellNormalTensor[ids] = normalComp;
-                    cellNormalAreaTensor[ids] = normalAreaComp;
-										ids ++;//particle id from 0. FIXME:We need read the particle id from the local file. Here the ids are sequencially numbered.
+                std::cout << "points created: " << pp.points.size() << std::endl << std::endl;
+                //store all particle in a list pplist
+                pplist.push_back(pp);
+                particleVolumes[ids] = volume;
+                particleSurfaceArea[ids] = area;
+                //surface tensors
+                std::vector<double> normalComp={0.,0.,0.,0.,0.,0.};//six components
+                std::vector<double> normalAreaComp={0.,0.,0.,0.,0.,0.};//six components
+                cellNormalTensor[ids] = normalComp;
+                cellNormalAreaTensor[ids] = normalAreaComp;
+								ids ++;//particle id from 0. FIXME:We need read the particle id from the local file. Here the ids are sequencially numbered.
             }
         }
     }//end parameterized particle surface reading
@@ -591,7 +584,97 @@ void process_voronoi(State& state,std::string posfile,std::string wallfile,std::
 
 //call local_voronoi
     double radiation_radius = 4;
-local_voronoi(state,pplist,wallfile,radiation_radius,epsilon,sequenceNum);
+		local_voronoi(state,pplist,wallfile,radiation_radius,epsilon,sequenceNum);
+
+}
+void process_voronoi2(State& state,std::string posfile,std::string wallfile,std::string sequenceNum){
+
+    std::string folder = state["outputFolder"];
+    if(folder.empty())
+    {
+        std::cerr << "outfilepath is not valid" << std::endl;
+        return;
+    }
+    //std::cout<<"wallfile: "<<wallfile.empty()<<std::endl;
+    //std::string readfile = state["readfile"];
+
+    std::cout << "Parsing Position File... \nWorking on " << posfile << std::endl;
+
+    // pp contains the triangulation of the particle surfaces
+
+
+    std::vector<pointpattern> pplist; //all particles
+
+        // read particle parameters and positions
+        std::vector<particleparameterset> setlist;
+		//judge whether the file can be open or not
+        bool flag = loader.read(posfile,setlist);
+        if (!flag){return;}//if the current posfile can not be found, then skipt it.
+        std::cout << "Creating Surface Triangulation... " << std::flush;
+
+        const int w_slices = state["w_slices"];
+        const int h_slices = state["h_slices"];
+        const double scale =  state["scale"];
+
+        // scope for the readstate to ensure it won't lack out to anything else
+        {
+            // create a readstate that translates the particle parameters to surface shapes
+            //State readstate {true};
+            //readstate["pointpattern"].SetClass<pointpattern> ("addpoint", &pointpattern::addpoint );
+            //readstate.Load(readfile);
+
+            unsigned int ids = 0;
+            //by chris
+						std::vector<particleAttr> parAttrlist;
+						//preprocessing data
+						std::ofstream fp1;
+						std::string path1 = folder + "/parproperties.txt";
+						fp1.open(path1.c_str(),std::ios::out);
+						fp1 << "#particleID particleVolume particleSurfaceArea" << std::endl;
+						for(auto it = setlist.begin(); it != setlist.end(); ++it )
+            {
+							// read one particle from the position file
+							particleparameterset set = (*it);
+							cellVolumes[ids] = 0.0;
+							cellSurfaceArea[ids] = 0.0;
+							double area=0,volume=0;
+							std::string outfile = folder + "/"+std::to_string(ids)+".dat";//store point clouds of particles
+							particleAttr pa;
+							pointCloud_Superquadric(ids, outfile, scale,set.parameter,w_slices,h_slices,area,volume,pa);
+							parAttrlist.push_back(pa);
+							fp1 << ids << "\t"<<volume<<"\t" << area << std::endl;
+							ids ++;
+						}
+						std::cout << "point cloud created!" << std::endl;
+						//get surrounding particles and update surroundedID in particle attr
+						//using Exhaustive method
+						double radiation_radius = 4.0;
+						for(int i = 0 ;i< parAttrlist.size();i++){//mayby using pointer is faster
+					//		particleAttr p1;
+							double dist = 0;
+							for(int j = 0 ; j < parAttrlist.size();j++){
+								//FIXME:using AABB to speed up?
+								if(j == i) continue;//
+								particleAttr p2  = parAttrlist.at(j);
+								dist = sqrt(pow((parAttrlist.at(i).centerx-p2.centerx),2)+pow((parAttrlist.at(i).centery-p2.centery),2)+pow((parAttrlist.at(i).centerz-p2.centerz),2));
+								if(parAttrlist.at(i).radius * radiation_radius > dist ){
+									//p2 close to p1
+									parAttrlist.at(i).surroundedID.push_back(p2.ID); // find all particle close to p1 not including current particle itself;
+								}
+							}
+						}
+						//compute Voronoi cells of all particles one by one
+						for(int i = 0 ;i< 1/*parAttrlist.size()*/;i++){
+							CellMachine CM = CellMachine(folder,folder);
+							//loading point clouds from local files
+							CM.pushPoints(parAttrlist[i]);
+							//comupute cells
+							CM.processing();
+						}
+        }
+    std::cout << "finished!" << std::endl;
+    const double epsilon = state["epsilon"];
+    std::cout << "\nDone! :) "<< std::endl;
 
 }
 int main (int argc, char* argv[])
@@ -669,7 +752,7 @@ int main (int argc, char* argv[])
         std::string wallfile = state["wallfile"];
 		//the most important step is the "process_voronoi"
 
-        process_voronoi(state,posfile,wallfile,char2string(""));
+        process_voronoi2(state,posfile,wallfile,char2string(""));
     }
     return 0;
 }
