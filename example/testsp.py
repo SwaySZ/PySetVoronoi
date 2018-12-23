@@ -7,9 +7,10 @@ mycf = cf.CellFactory()
 mycf.infolder = "./input"
 mycf.outfolder = "./output"
 mycf.posFile = "./input/Particles.dat"
+mycf.cellVTK = True
 #you can execute it step by step
-#mycf.genPointClouds()#here you can put your raw data
-#mycf.neighborSearch()
-#mycf.processing()
+mycf.genPointClouds(w_slices=30,h_slices=30)#here you can put your raw data
+mycf.neighborSearch()
+mycf.processing()
 #or you can conduct an automatic work flow
-mycf.autoWorkFlow()
+#mycf.autoWorkFlow()
