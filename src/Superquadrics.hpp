@@ -20,6 +20,7 @@
 #include "duplicationremover.hpp"
 #include "particleparameterset.hpp"
 #include "parAttr.hpp"
+#include <fstream>
 #include <string>
 
 

@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright 2016 Simon Weis and Philipp Schoenhoefer
 
 This file is part of Pomelo.
@@ -16,11 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Pomelo.  If not, see <http://www.gnu.org/licenses/>.
 
-The development of Pomelo took place at the Friedrich-Alexander University of Erlangen and was funded by the German Research Foundation (DFG) Forschergruppe FOR1548 "Geometry and Physics of Spatial Random Systems" (GPSRS). 
+The development of Pomelo took place at the Friedrich-Alexander University of Erlangen and was funded by the German Research Foundation (DFG) Forschergruppe FOR1548 "Geometry and Physics of Spatial Random Systems" (GPSRS).
 */
 #ifndef DUPLICATIONREMOVER_H_1234567
 #define DUPLICATIONREMOVER_H_1234567
-
+#include <iostream>
 #include <vector>
 #include "pointpattern.hpp"
 
