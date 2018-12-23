@@ -1,5 +1,5 @@
 #CXX = clang++ -Wall -Wextra -O3  -I./lib/Lua#-std=c++11
-CXX = g++ -Wall -Wextra -g -O3 -std=c++11  -fPIC#-I./lib/Lua # -I/scratch/softwares/gcc4.9/include
+CXX = g++ -Wextra -g -O3 -std=c++11  -fPIC#-I./lib/Lua # -I/scratch/softwares/gcc4.9/include
 #CXXVORO = g++ -std=c++11 -g -O3
 # Relative include and library paths for compilation of the examples
 E_INC=-I./lib/eigen3.3.5
