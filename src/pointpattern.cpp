@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright 2016 Simon Weis and Philipp Schoenhoefer
 
 This file is part of Pomelo.
@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Pomelo.  If not, see <http://www.gnu.org/licenses/>.
 
-The development of Pomelo took place at the Friedrich-Alexander University of Erlangen and was funded by the German Research Foundation (DFG) Forschergruppe FOR1548 "Geometry and Physics of Spatial Random Systems" (GPSRS). 
+The development of Pomelo took place at the Friedrich-Alexander University of Erlangen and was funded by the German Research Foundation (DFG) Forschergruppe FOR1548 "Geometry and Physics of Spatial Random Systems" (GPSRS).
 */
 #include <iostream>
 #include "pointpattern.hpp"
@@ -63,7 +63,7 @@ void pointpattern::removeduplicates (double epsilon)
             if (j >= points.size()) break;
             p2 = points[j];
             //if(p2.cellID == -1 || p2.l == -1) continue;
-            if (p2.l == 0) std::cout << "particle with label 0 detected" << std::endl;
+            //if (p2.l == 0) std::cout << "particle with label 0 detected" << std::endl;
             if (checkdistancecloserthan(p1, p2, epsilon))
             {
                 if (p1.cellID == p2.cellID && p1.l != -1)
@@ -109,7 +109,7 @@ void pointpattern::removeduplicates (double epsilon, pointpattern& p)
         {
             p2 = p.points[j];
             //if(p2.cellID == -1 || p2.l == -1) continue;
-            if (p2.l == 0) std::cout << "particle with label 0 detected" << std::endl;
+            //if (p2.l == 0) std::cout << "particle with label 0 detected" << std::endl;
             if (checkdistancecloserthan(p1, p2, epsilon))
             {
                 if (p1.cellID == p2.cellID && p1.l != -1)

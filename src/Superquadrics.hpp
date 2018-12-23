@@ -17,6 +17,7 @@
  * =====================================================================================
  */
 #include "pointpattern.hpp"
+#include "duplicationremover.hpp"
 #include "particleparameterset.hpp"
 #include "parAttr.hpp"
 #include <string>
@@ -266,6 +267,7 @@ void pointCloud_Superquadric(unsigned int id, std::string outfile, double scaled
         //scaledist = scale*rmin;
 				std::ofstream fp;
 				fp.open(outfile.c_str(),std::ios::out);
+				//pointpattern pp;
 		//caution:the two polar points should be degenerated.
         for(a=hStep,i=0;i<h-2;i++,a+=hStep)
           {
@@ -296,8 +298,8 @@ void pointCloud_Superquadric(unsigned int id, std::string outfile, double scaled
 			}
             p = p - n*scaledist;
             p = A*p + Position;
-            //pp.addpoint(id,p(0),p(1),p(2));
-						fp << p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+            //pp.addpoint(0,p(0),p(1),p(2));
+						fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
 						if(p(0)<xmin) xmin = p(0);
 						if(p(1)<ymin) ymin = p(1);
 						if(p(2)<zmin) zmin = p(2);
@@ -327,16 +329,10 @@ void pointCloud_Superquadric(unsigned int id, std::string outfile, double scaled
             //scale = 1.0 - scaledist/p.norm();
             //std::cout<<"scale="<<scale<<std::endl;
             //p = p*scale;
-			//debuging
-			{/*
-				if (id==8){
-					std::cout<<p(0)<<" "<<p(1)<<" "<<p(2)<<std::endl;
-				}*/
-			}
             p = p - n*scaledist;
             p = A*p + Position;
-            //pp.addpoint(id,p(0),p(1),p(2));
-						fp << p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+            //pp.addpoint(0,p(0),p(1),p(2));
+						fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
 						if(p(0)<xmin) xmin = p(0);
 						if(p(1)<ymin) ymin = p(1);
 						if(p(2)<zmin) zmin = p(2);
@@ -355,6 +351,21 @@ void pointCloud_Superquadric(unsigned int id, std::string outfile, double scaled
 				 pattr.xrange = xmax - xmin;
 				 pattr.yrange = ymax - ymin;
 				 pattr.zrange = zmax - zmin;
+				 /*std::cout << "polywriter: remove duplicates" << std::endl;
+				 duplicationremover d(16,16,16);
+				 d.setboundaries(xmin, xmax, ymin, ymax, zmin, zmax);
+				 std::cout << "\tadding"<<pp.points.size()<<" points" << std::endl;
+				 d.addPoints(pp, false);
+				 std::cout << "\tremoving duplicates" << std::endl;
+				 double epsilon = 1e-6;
+				 d.removeduplicates(epsilon);
+				 d.getallPoints(pp);
+				 std::cout << "\tget back "<<pp.points.size()<<" points" << std::endl;
+				 //write a file
+				 for(unsigned int i = 0;i<pp.points.size();i++){
+					 fp << pp.points.at(i).x<<"\t" << pp.points.at(i).y<<"\t" << pp.points.at(i).z<<std::endl;
+        }*/
+				fp.close();
 		//pattr: updated over
     double alpha;
     alpha = rx*ry*rz*eps1*eps2;

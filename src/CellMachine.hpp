@@ -45,10 +45,13 @@ private:
   double wall_xmin,wall_xmax,wall_ymin,wall_ymax,wall_zmin,wall_zmax;//the global wall size
   bool xpbc, ypbc,zpbc;
 	bool savereduced, removeduplicate, withboundary, savevtk, cellVTK, savepov, savepoly;
-	voro::container *con;//container
+	voro::pre_container *pcon;//container
   unsigned long long pid;//point id
   //std::map < unsigned long long, int> labelidmap;//no need to use map, just vector is ok
   std::vector<int> labelidmap;
+  double scale;//scale the data to avoid numerical errors when processing voro++. Voro++'s nplnae throws bugs here.
+  unsigned int blockMem;//memory for each block to be allocated by dufault
+  //pointpattern *pp;
   //particleAttr pAttr;
   double rr;//resolution used to clip facets of a cell
   double delta;//shrink the box to get gaps between points and box-walls
@@ -61,9 +64,9 @@ private:
 public:
 	CellMachine(std::string input_folder,std::string output_folder);
 	~CellMachine(){
-    if(con){
-      con->clear();
-      delete con;
+    if(pcon){
+      //pcon->clear();
+      //delete pcon;
     }
   };
 	void pushPoints(particleAttr& pAttr);//push points to the box for voronoi tessellation

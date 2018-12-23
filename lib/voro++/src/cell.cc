@@ -1102,15 +1102,27 @@ bool voronoicell_base::nplane(vc_class &vc,double x,double y,double z,double rsq
 	// Delete them from the array structure
 	while(stackp>ds) {
 		--p;
+		/*if(p_id==1402){
+			fprintf(stderr,"p %d\n",p);
+			fprintf(stderr,"nu %d\n",nu[p]);
+			fprintf(stderr,"ed %d\n",ed[p][nu[p]]);
+		}*/
 		while(ed[p][nu[p]]==-1) {
+			/*if(p_id==1402){
+				fprintf(stderr,"p1 %d\n",p);
+			}*/
 			j=nu[p];
 			edp=ed[p];edd=(mep[j]+((j<<1)+1)*--mec[j]);
 			while(edp<ed[p]+(j<<1)+1) *(edp++)=*(edd++);
 			vc.n_set_aux2_copy(p,j);
 			vc.n_copy_pointer(ed[p][(j<<1)],p);
 			ed[ed[p][(j<<1)]]=ed[p];
+			//if(p<2) break;
 			--p;
 		}
+		/*if(p_id==1402){
+			fprintf(stderr,"p2 %d\n",p);
+		}*/
 		up=*(--stackp);
 		if(up<p) {
 

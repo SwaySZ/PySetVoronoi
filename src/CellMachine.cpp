@@ -1,5 +1,5 @@
 #include "CellMachine.hpp"
-
+#include "duplicationremover.hpp"
 void CellMachine::initial(){
   cid = -1;
   pid = 0;
@@ -18,13 +18,16 @@ CellMachine::CellMachine(std::string input_folder,std::string output_folder){
   removeduplicate = false;
   withboundary = false;
   savevtk = false;
-  cellVTK = true;
+  cellVTK = false;
   savepov = false;
   savepoly = false;
   delta = 0.1e-3;//
-  con = NULL;
+  scale = 1000.0;//scale up 3 order of magnitude. Thus, an input unit of meter yields an output unit of millimeter. However, for the sake of consistence, we scale down the results for writing out.
+  pcon = NULL;
+  //pp = NULL;
   initial();
-  nx = ny = nz =40;
+  blockMem = 32;
+  nx = ny = nz =10;//we try to guess a better value for each of them
 	//to do,
 }
 void CellMachine::reset(){
@@ -59,7 +62,7 @@ void  CellMachine::getFaceVerticesOfFace( std::vector<int>& f, unsigned int k, s
 }
 //test a point is inside the box of this cell machine
 bool CellMachine::isInBox(double x, double y, double z){
-  bool ret = (x<xmin+delta)||(x>xmax-delta)||(y<ymin+delta)||(y>ymax-delta)||(z<zmin+delta)||(z>zmax-delta);
+  bool ret = (x<xmin)||(x>xmax)||(y<ymin)||(y>ymax)||(z<zmin)||(z>zmax);
   return !ret;
 }
 void CellMachine::readWall(std::string filename)
@@ -126,7 +129,12 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
     std::ofstream fp2;
     std::string outfile = "./test.xyz";
     std::cout<<"particleID="<<particleId<<filename<<std::endl;
-    fp2.open(outfile.c_str(),std::ios::out|std::ios::app);
+    if(!flag){
+      fp2.open(outfile.c_str(),std::ios::out);
+    }else{
+      fp2.open(outfile.c_str(),std::ios::out|std::ios::app);
+    }
+
     #endif
     if (infile.fail())
     {
@@ -159,7 +167,8 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
             //std::cout<<"hre"<<con<<std::endl;
             if(flag){
               if(isInBox(xyz[0],xyz[1],xyz[2])){
-                con->put(pid, xyz[0],xyz[1],xyz[2]);
+                pcon->put(pid, xyz[0]*scale,xyz[1]*scale,xyz[2]*scale);
+                //pp->addpoint(particleId,xyz[0],xyz[1],xyz[2]);
                 labelidmap.push_back(particleId);
                 #ifdef DEBUG_CM
                 fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
@@ -167,7 +176,8 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
                 ++pid;
               }
             }else{
-              con->put(pid, xyz[0],xyz[1],xyz[2]);
+              pcon->put(pid, xyz[0]*scale,xyz[1]*scale,xyz[2]*scale);
+              //pp->addpoint(particleId,xyz[0],xyz[1],xyz[2]);
               labelidmap.push_back(particleId);
               #ifdef DEBUG_CM
               fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
@@ -201,11 +211,9 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   //create a voro container
   std::cout<<"creating a container..."<<std::endl;
   //std::cout<<xmin<<" "<<xmax<<" "<<ymin<<" "<<ymax<<" "<<zmin<<" "<<zmax<<nx<<ny<<nz<<std::endl;
-  if(con){
-    con->clear();
-    delete con;
-  }
-  con = new voro::container(xmin, xmax, ymin, ymax, zmin, zmax, nx, ny, nz, xpbc, ypbc, zpbc, 32);
+  pcon=new voro::pre_container(xmin*scale, xmax*scale, ymin*scale, ymax*scale, zmin*scale, zmax*scale, xpbc, ypbc, zpbc);
+  //con = new voro::container(xmin, xmax, ymin, ymax, zmin, zmax, nx, ny, nz, xpbc, ypbc, zpbc, 32);
+  //pp = new pointpattern();
   //std::cout<<"con="<<con<<std::endl;
   //con = con_tmp;
 	std::cout << "currentparticleID: "<<cid<<std::endl;
@@ -217,6 +225,28 @@ void CellMachine::pushPoints(particleAttr& pAttr){
     //std::cout<<"spid="<<*it<<std::endl;
 		readParticle(in_folder + "/"+std::to_string((*it))+".dat", true, (*it));
 	}
+
+  /*std::cout << "polywriter: remove duplicates" << std::endl;
+  duplicationremover d(16,16,16);
+  d.setboundaries(xmin, xmax, ymin, ymax, zmin, zmax);
+  std::cout << "\tadding"<<pp->points.size()<<" points" << std::endl;
+  d.addPoints(*pp, false);
+  std::cout << "\tremoving duplicates" << std::endl;
+  double epsilon = 1e-5;
+  d.removeduplicates(epsilon);
+  d.getallPoints(*pp);
+  std::cout << "\tget back "<<pp->points.size()<<" points" << std::endl;
+
+  for(unsigned int i = 0;i<pp->points.size();i++){
+    pcon->put(pid, pp->points.at(i).x*1000,pp->points.at(i).y*1000,pp->points.at(i).z*1000);
+    ++pid;
+    labelidmap.push_back(pp->points.at(i).l);
+ }
+ delete pp;
+ pp = NULL;
+ */
+  pcon->guess_optimal(nx,ny,nz);
+  std::cout<<"nx="<<nx<<" ny="<<ny<<" nz="<<nz<<std::endl;
 }
 void CellMachine::writeGlobal(){
 			std::ofstream fp;
@@ -228,7 +258,7 @@ void CellMachine::writeGlobal(){
         fp.open(path.c_str(),std::ios::out| std::ios::app);
       }
 
-			fp <<  std::setprecision(12) << cellVolume << " " << cellSurfaceArea
+			fp <<  cid<<" "<<std::scientific << cellVolume << " " << cellSurfaceArea
 							<< " " <<cellNormalTensor[0]<< " " <<cellNormalTensor[1]<< " " <<cellNormalTensor[2]
               << " " <<cellNormalTensor[3]<< " " <<cellNormalTensor[4]<< " " <<cellNormalTensor[5]
 							<< " " <<cellNormalAreaTensor[0]<< " " <<cellNormalAreaTensor[1]<< " " <<cellNormalAreaTensor[2]
@@ -281,17 +311,24 @@ void CellMachine::writeLocal(polywriter *pw){
 //comupute a single Voronoi cell based on data of the corresponding particle and the surrounding ones.
 void CellMachine::processing(){
   if(cid<0){std::cout<<"Using parAttr to initialize the Cell Machine"<<std::endl;}
+    if(nx*ny*nz>12000){//the number is set by experience
+      blockMem = 64;
+    }
+    voro::container con(xmin*scale, xmax*scale, ymin*scale, ymax*scale, zmin*scale, zmax*scale, nx, ny, nz, xpbc, ypbc, zpbc, blockMem);
+    pcon->setup(con);
+    delete pcon;
+    pcon = NULL;
 		polywriter *pw = new polywriter();
 		unsigned long long numberofpoints = labelidmap.size();
 		// merge voronoi cells to set voronoi diagram
 		std::cout << "merge voronoi cells :    ";
 		// loop over all voronoi cells
-		voro::c_loop_all cla(*con);
+		voro::c_loop_all cla(con);
 		// cell currently worked on
 		 unsigned long long status = 0;
 		 // counter for process output
 		 double outputSteps = 100;
-		 double tenpercentSteps = 1/outputSteps*static_cast<double>(numberofpoints);
+		 double tenpercentSteps = 10/outputSteps*static_cast<double>(numberofpoints);
 		 std::cout<<"number of points : " << numberofpoints ;
 		 double target = tenpercentSteps;
 		 if(cla.start())
@@ -301,12 +338,12 @@ void CellMachine::processing(){
 			{
 					voro::voronoicell_neighbor c;
 					status++;
-					if(con->compute_cell(c,cla))
+					if(con.compute_cell(c,cla))
 					{
 							if ( status >= target)
 							{
 									target += tenpercentSteps;
-									std::cout << static_cast<int>(static_cast<double>(status)/static_cast<double>(numberofpoints)*outputSteps) << " \%%\t" << std::flush;
+									std::cout << static_cast<int>(static_cast<double>(status)/static_cast<double>(numberofpoints)*outputSteps) << " \%\t" << std::flush;
 							}
 							//std::cout << "computed"  << std::endl;
 							double xc = 0;
@@ -417,5 +454,5 @@ void CellMachine::processing(){
   delete pw;
   writeGlobal();
 	std::cout << std::endl;
-	con->clear();
+	con.clear();
 }
