@@ -1,3 +1,21 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  CellMachine.cpp
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  12/22/2018
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Shiwei Zhao (zhswee@gmail.com)
+ *   Organization: The Hong Kong University of Science and Technology
+ *                 South China University of Technology
+ *
+ * =====================================================================================
+ */
 #include "CellMachine.hpp"
 #include "duplicationremover.hpp"
 void CellMachine::initial(){

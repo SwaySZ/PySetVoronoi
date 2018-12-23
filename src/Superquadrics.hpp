@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __SUPERQUADRIC__
+#define __SUPERQUADRIC__
 /*
  * =====================================================================================
  *
@@ -377,3 +378,4 @@ void pointCloud_Superquadric(unsigned int id, std::string outfile, double scaled
     area = getSurfaceArea( rx, ry, rz,  eps1, eps2, 50,50);//2500 discretized points on the surface
 
 }
+#endif
