@@ -26,7 +26,7 @@
  #include <limits>
  #include <cmath>
  #include <sys/stat.h>
- #include "include.hpp"
+ #include <voro++.hh>
  #include "fileloader.hpp"
  #include "pointpattern.hpp"
  #include "duplicationremover.hpp"
@@ -63,6 +63,7 @@ private:
   double cellNormalAreaTensor[6];//six components of normalAreaTensor(1-6)
 public:
 	CellMachine(std::string input_folder,std::string output_folder);
+  CellMachine();
 	~CellMachine(){
     if(pcon){
       //pcon->clear();
@@ -79,5 +80,8 @@ public:
   bool isInBox(double x, double y, double z);//test if a point is inside the box
   void initial();//initialize a cell machine
   void reset();//reset the cell machine for another cell computation if needed.
+  //
+  double get_scale(){return scale;}
+  void set_scale(double sc){scale = sc;}
 };
 #endif

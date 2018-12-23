@@ -10,6 +10,24 @@ void CellMachine::initial(){
   for(int i=0;i<6;i++) cellNormalAreaTensor[i]=0.0;
   labelidmap.clear();
 }
+CellMachine::CellMachine(){
+	xpbc = ypbc = zpbc = false;//using non-periodic boundary by default
+  savereduced =false;
+  removeduplicate = false;
+  withboundary = false;
+  savevtk = false;
+  cellVTK = false;
+  savepov = false;
+  savepoly = false;
+  delta = 0.1e-3;//
+  scale = 1000.0;//scale up 3 order of magnitude. Thus, an input unit of meter yields an output unit of millimeter. However, for the sake of consistence, we scale down the results for writing out.
+  pcon = NULL;
+  //pp = NULL;
+  initial();
+  blockMem = 32;
+  nx = ny = nz =10;//we try to guess a better value for each of them
+	//to do,
+}
 CellMachine::CellMachine(std::string input_folder,std::string output_folder){
 	xpbc = ypbc = zpbc = false;//using non-periodic boundary by default
   in_folder = input_folder;
