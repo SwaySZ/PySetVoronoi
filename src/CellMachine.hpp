@@ -83,5 +83,7 @@ public:
   //
   double get_scale(){return scale;}
   void set_scale(double sc){scale = sc;}
+  void set_cellVTK(bool cv){cellVTK=cv;}
+  bool get_cellVTK(){return cellVTK;}
 };
 #endif

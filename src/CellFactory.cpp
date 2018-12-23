@@ -24,6 +24,9 @@
 #include <chrono>
 #include <thread>
 
+#define CF_OPENMP//using openMP, to do
+#define CF_DEBUG_no
+
 namespace py = boost::python;
 class CellFactory{
 private:
@@ -32,14 +35,15 @@ private:
   std::string posFile;//position file of particles
   std::vector<particleAttr> parAttrlist;//store particle attributes
   double parShrink;//shrink a particle by a small gap (parShrink) during generating its point cloud.
-  double w_slices;//slicing
-  double h_slices;
+  //double w_slices;//slicing
+  //double h_slices;
+  bool cellVTK;//output cells' vtk files
   //configuration
   double searchRadius;//neighbour lists would be built within a sphere with a radius of seachRadius
 public:
   CellFactory();
   ~CellFactory(){};
-  void genPointClouds(void);
+  void genPointClouds(double w_slices,double h_slices);
   void neighborSearch(void);
   void processing(void);
   void autoWorkFlow(void);
@@ -52,14 +56,20 @@ public:
   double get_searchRadius(){return searchRadius;}
   void set_posFile(std::string pf){posFile = pf;}
   std::string get_posFile(){return posFile;}
+  void set_cellVTK(bool cv){cellVTK=cv;}
+  bool get_cellVTK(){return cellVTK;}
+  void set_parShrink(double ps){parShrink = ps;}
+  double get_parShrink(){return parShrink;}
+
 };
 CellFactory::CellFactory(){
   searchRadius = 4.0;
   parShrink = 0.01e-3;
-  w_slices = 20;
-  h_slices = 20;
+  //w_slices = 20;
+  //h_slices = 20;
+  cellVTK = false;
 }
-void CellFactory::genPointClouds(void){
+void CellFactory::genPointClouds(double w_slices=20,double h_slices = 20){
   std::vector<particleparameterset> setlist;
 //judge whether the file can be open or not
   fileloader loader;
@@ -105,9 +115,11 @@ void CellFactory::neighborSearch(void){
 
 void CellFactory::processing(void){
   std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+  //here we can use openMP (or MPI) for parallel computation
   for(int i = 0 ;i< parAttrlist.size();i++){
   //#endif
     CellMachine CM = CellMachine(in_folder,out_folder);
+    CM.set_cellVTK(cellVTK);
     //loading point clouds from local files
     CM.pushPoints(parAttrlist[i]);
     //comupute cells
@@ -139,21 +151,27 @@ BOOST_PYTHON_MODULE(cellfactory){
 	py::docstring_options docopt;
 	docopt.enable_all();
 	docopt.disable_cpp_signatures();
-
+  /*
+  py::class_<parAttr>("parAttr","struct for particle attributes.")
+    .add_property("scale",&CellMachine::get_scale,&CellMachine::set_scale,"Scale up data to avoid numerical issues when conducting tessellation.")
+    ;
+    */
   py::class_<CellFactory>("CellFactory","CellFactory.")
 		.add_property("infolder",&CellFactory::get_infolder,&CellFactory::set_infolder,"directory where the data would be input.")
     .add_property("outfolder",&CellFactory::get_outfolder,&CellFactory::set_outfolder,"directory where the data would be output.")
     .add_property("searchRadius",&CellFactory::get_searchRadius,&CellFactory::set_searchRadius,"neighbour lists would be built within a sphere with a radius of seachRadius")
     .add_property("posFile",&CellFactory::get_posFile,&CellFactory::set_posFile,"path of the file of particle positions.")
+    .add_property("cellVTK",&CellFactory::get_cellVTK,&CellFactory::set_cellVTK,"whether to write vtk files for all cells.")
     .def("processing",&CellFactory::processing,"Processing tessellation.")
-    .def("genPointClouds",&CellFactory::genPointClouds,"initialize a cell machine")
+    .def("genPointClouds",&CellFactory::genPointClouds,(py::arg("w_slices")=20,py::arg("h_slices")=20),"initialize a cell machine")
     .def("neighborSearch",&CellFactory::neighborSearch,"reset the cell machine for another cell computation if needed.")
     .def("autoWorkFlow",&CellFactory::autoWorkFlow,"")
 		;
 
 	py::class_<CellMachine>("CellMachine","CellMachine builds a single Voronoi cell of a given particle surrounded by others.")
 		.add_property("scale",&CellMachine::get_scale,&CellMachine::set_scale,"Scale up data to avoid numerical issues when conducting tessellation.")
-		.def("processing",&CellMachine::processing,"Processing tessellation.")
+.add_property("cellVTK",&CellMachine::get_cellVTK,&CellMachine::set_cellVTK,"whether to write vtk files for all cells.")
+    .def("processing",&CellMachine::processing,"Processing tessellation.")
     .def("initial",&CellMachine::initial,"initialize a cell machine")
     .def("reset",&CellMachine::reset,"reset the cell machine for another cell computation if needed.")
 		;

@@ -3,7 +3,7 @@
  *
  *       Filename:  CellMachine.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  12/22/2018
@@ -114,7 +114,7 @@ void CellMachine::readWall(std::string filename)
     cSplitString line("");
     unsigned int linesloaded = 0;
     //std::getline(infile, line);
-    std::cout<<"Warning! The wallfile should include six lines in order with xmin,xmax,ymin,ymax,zmin,zmax. Each line has three components."<<std::endl;
+    //std::cout<<"Warning! The wallfile should include six lines in order with xmin,xmax,ymin,ymax,zmin,zmax. Each line has three components."<<std::endl;
     std::vector< std::vector<double> > wallpos;
     while (std::getline(infile, line))
     {
@@ -152,7 +152,7 @@ void CellMachine::readWall(std::string filename)
         wall_zmin = wallpos[4][2];
         wall_zmax = wallpos[5][2];
     }
-    std::cout << "Wall position was imported successfully!" << std::endl << std::endl;
+    //std::cout << "Wall position was imported successfully!" << std::endl << std::endl;
 
     infile.close();
 }
@@ -245,16 +245,15 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   zmin = std::max(pAttr.centerz - pAttr.zrange*2.0, wall_zmin);
   zmax = std::min(pAttr.centerz + pAttr.zrange*2.0, wall_zmax);
   //create a voro container
-  std::cout<<"creating a container..."<<std::endl;
+  //std::cout<<"creating a container..."<<std::endl;
   //std::cout<<xmin<<" "<<xmax<<" "<<ymin<<" "<<ymax<<" "<<zmin<<" "<<zmax<<nx<<ny<<nz<<std::endl;
   pcon=new voro::pre_container(xmin*scale, xmax*scale, ymin*scale, ymax*scale, zmin*scale, zmax*scale, xpbc, ypbc, zpbc);
   //con = new voro::container(xmin, xmax, ymin, ymax, zmin, zmax, nx, ny, nz, xpbc, ypbc, zpbc, 32);
   //pp = new pointpattern();
   //std::cout<<"con="<<con<<std::endl;
   //con = con_tmp;
-	std::cout << "currentparticleID: "<<cid<<std::endl;
-	std::vector<int> surroundedID = pAttr.surroundedID;
-	std::cout<<"surroundedID size: "<<surroundedID.size()<<std::endl;
+  std::vector<int> surroundedID = pAttr.surroundedID;
+	std::cout << "currentparticleID: "<<cid<<"    surroundedID size: "<<surroundedID.size()<<std::endl;
   readParticle(in_folder + "/"+std::to_string(cid)+".dat", false, cid);//read the particle itself
   //read the other surrounding particles
   for(std::vector<int>::iterator it = surroundedID.begin();it!=surroundedID.end();it++){
@@ -294,7 +293,7 @@ void CellMachine::writeGlobal(){
         fp.open(path.c_str(),std::ios::out| std::ios::app);
       }
 
-			fp <<  cid<<" "<<std::scientific << cellVolume << " " << cellSurfaceArea
+			fp <<  cid<<" "<<std::scientific << cellVolume/pow(scale,3) << " " << cellSurfaceArea/pow(scale,2)
 							<< " " <<cellNormalTensor[0]<< " " <<cellNormalTensor[1]<< " " <<cellNormalTensor[2]
               << " " <<cellNormalTensor[3]<< " " <<cellNormalTensor[4]<< " " <<cellNormalTensor[5]
 							<< " " <<cellNormalAreaTensor[0]<< " " <<cellNormalAreaTensor[1]<< " " <<cellNormalAreaTensor[2]
@@ -357,7 +356,6 @@ void CellMachine::processing(){
 		polywriter *pw = new polywriter();
 		unsigned long long numberofpoints = labelidmap.size();
 		// merge voronoi cells to set voronoi diagram
-		std::cout << "merge voronoi cells :    ";
 		// loop over all voronoi cells
 		voro::c_loop_all cla(con);
 		// cell currently worked on
@@ -365,11 +363,11 @@ void CellMachine::processing(){
 		 // counter for process output
 		 double outputSteps = 100;
 		 double tenpercentSteps = 10/outputSteps*static_cast<double>(numberofpoints);
-		 std::cout<<"number of points : " << numberofpoints ;
+		 std::cout << "merge voronoi cells of "<< numberofpoints<<" points..."<<std::endl;
 		 double target = tenpercentSteps;
 		 if(cla.start())
 		 {
-			std::cout << "started\n" << std::flush;
+			//std::cout << "started\n" << std::flush;
 			do
 			{
 					voro::voronoicell_neighbor c;
