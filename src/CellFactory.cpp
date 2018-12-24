@@ -26,7 +26,7 @@
 #include <thread>
 
 #define CF_OPENMP//using openMP, to do
-#define CF_DEBUG_no
+#define CF_DEBUG
 
 
 
@@ -127,8 +127,8 @@ void CellFactory::processingOne(unsigned int pid){
 
 void CellFactory::autoWorkFlow(void){
   #ifdef CF_DEBUG
-  std::cout << "DEBUG: accessfile() called by process " << ::getpid() << " (parent: " << ::getppid() << ")" << std::endl;
-	std::this_thread::sleep_for(std::chrono::seconds(10));//sleep for gdb debug
+  //std::cout << "DEBUG: accessfile() called by process " << ::getpid() << " (parent: " << ::getppid() << ")" << std::endl;
+	//std::this_thread::sleep_for(std::chrono::seconds(10));//sleep for gdb debug
   #endif
   //generate point clouds
   genPointClouds();
@@ -183,9 +183,9 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
         Matrix3r A = Ori.toRotationMatrix();
 				//update particle attribution
 				pattr.ID = id;
-				pattr.centerx = set[5];
-				pattr.centery = set[6];
-				pattr.centerz = set[7];
+				pattr.centerx = Position[0];
+				pattr.centery = Position[1];
+				pattr.centerz = Position[2];
 				double xmin(1e10),xmax(-1e10),ymin(1e10),ymax(-1e10),zmin(1e10),zmax(-1e10);
 
         //find rmin

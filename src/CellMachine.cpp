@@ -247,7 +247,11 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   zmax = std::min(pAttr.centerz + pAttr.zrange*boxScale, wall_zmax);
   //create a voro container
   //std::cout<<"creating a container..."<<std::endl;
-  //std::cout<<xmin<<" "<<xmax<<" "<<ymin<<" "<<ymax<<" "<<zmin<<" "<<zmax<<nx<<ny<<nz<<std::endl;
+  //std::cout<<pAttr.centerx<<" "<<pAttr.centery<<" "<<pAttr.centerz<<std::endl;
+  //std::cout<<"ymin"<<pAttr.centery - pAttr.yrange*boxScale<<std::endl;
+  //std::cout<<pAttr.yrange<<pAttr.xrange<<pAttr.zrange<<std::endl;
+  //std::cout<<"wallboxsize="<<wall_xmin<<" "<<wall_xmax<<" "<<wall_ymin<<" "<<wall_ymax<<" "<<wall_zmin<<" "<<wall_zmax<<std::endl;
+  //std::cout<<"boxsize="<<xmin<<" "<<xmax<<" "<<ymin<<" "<<ymax<<" "<<zmin<<" "<<zmax<<std::endl;
   pcon=new voro::pre_container(xmin*scale, xmax*scale, ymin*scale, ymax*scale, zmin*scale, zmax*scale, xpbc, ypbc, zpbc);
   //con = new voro::container(xmin, xmax, ymin, ymax, zmin, zmax, nx, ny, nz, xpbc, ypbc, zpbc, 32);
   //pp = new pointpattern();

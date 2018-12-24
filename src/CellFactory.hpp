@@ -29,7 +29,7 @@
 #include <thread>
 
 #define CF_OPENMP//using openMP, to do
-#define CF_DEBUG_no
+#define CF_DEBUG
 
 class CellFactory{
 private:
