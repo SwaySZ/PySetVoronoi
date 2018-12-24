@@ -58,6 +58,7 @@ CellMachine::CellMachine(std::string input_folder,std::string output_folder){
   savepov = false;
   savepoly = false;
   delta = 0.1e-3;//
+  boxScale = 2.0;
   scale = 1000.0;//scale up 3 order of magnitude. Thus, an input unit of meter yields an output unit of millimeter. However, for the sake of consistence, we scale down the results for writing out.
   pcon = NULL;
   //pp = NULL;
@@ -237,16 +238,20 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   //read wall boundary
   readWall(in_folder + "/walls.dat");
   //define the box size by considering the global wall
-
-  xmin = std::max(pAttr.centerx - pAttr.xrange*2.0, wall_xmin);
-  xmax = std::min(pAttr.centerx + pAttr.xrange*2.0, wall_xmax);
-  ymin = std::max(pAttr.centery - pAttr.yrange*2.0, wall_ymin);
-  ymax = std::min(pAttr.centery + pAttr.yrange*2.0, wall_ymax);
-  zmin = std::max(pAttr.centerz - pAttr.zrange*2.0, wall_zmin);
-  zmax = std::min(pAttr.centerz + pAttr.zrange*2.0, wall_zmax);
+  std::cout<<"scale="<<scale<<" boxScale="<<boxScale<<std::endl;
+  xmin = std::max(pAttr.centerx - pAttr.xrange*boxScale, wall_xmin);
+  xmax = std::min(pAttr.centerx + pAttr.xrange*boxScale, wall_xmax);
+  ymin = std::max(pAttr.centery - pAttr.yrange*boxScale, wall_ymin);
+  ymax = std::min(pAttr.centery + pAttr.yrange*boxScale, wall_ymax);
+  zmin = std::max(pAttr.centerz - pAttr.zrange*boxScale, wall_zmin);
+  zmax = std::min(pAttr.centerz + pAttr.zrange*boxScale, wall_zmax);
   //create a voro container
   //std::cout<<"creating a container..."<<std::endl;
-  //std::cout<<xmin<<" "<<xmax<<" "<<ymin<<" "<<ymax<<" "<<zmin<<" "<<zmax<<nx<<ny<<nz<<std::endl;
+  //std::cout<<pAttr.centerx<<" "<<pAttr.centery<<" "<<pAttr.centerz<<std::endl;
+  //std::cout<<"ymin"<<pAttr.centery - pAttr.yrange*boxScale<<std::endl;
+  //std::cout<<pAttr.yrange<<pAttr.xrange<<pAttr.zrange<<std::endl;
+  //std::cout<<"wallboxsize="<<wall_xmin<<" "<<wall_xmax<<" "<<wall_ymin<<" "<<wall_ymax<<" "<<wall_zmin<<" "<<wall_zmax<<std::endl;
+  //std::cout<<"boxsize="<<xmin<<" "<<xmax<<" "<<ymin<<" "<<ymax<<" "<<zmin<<" "<<zmax<<std::endl;
   pcon=new voro::pre_container(xmin*scale, xmax*scale, ymin*scale, ymax*scale, zmin*scale, zmax*scale, xpbc, ypbc, zpbc);
   //con = new voro::container(xmin, xmax, ymin, ymax, zmin, zmax, nx, ny, nz, xpbc, ypbc, zpbc, 32);
   //pp = new pointpattern();
