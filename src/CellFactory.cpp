@@ -18,6 +18,7 @@
  */
 
 #include "Superquadrics.hpp"
+#include "CellFactory.hpp"
 #include "CellMachine.hpp"
 #include <iostream>
 #include <fstream>
@@ -102,6 +103,22 @@ void CellFactory::processing(void){
   std::cout<<"Time ellapsed is:"<<duration<<" seconds"<<std::endl;
 }
 
+void CellFactory::processingOne(unsigned int pid){
+  std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+  //here we can use openMP (or MPI) for parallel computation
+  if(pid>=parAttrlist.size()){std::cerr << "the particle id is not valid!" << std::endl;return;}
+  //#endif
+    CellMachine CM = CellMachine(in_folder,out_folder);
+    CM.set_cellVTK(cellVTK);
+    //loading point clouds from local files
+    CM.pushPoints(parAttrlist[pid]);
+    //comupute cells
+    CM.processing();
+  std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
+  std::cout<<"Time ellapsed is:"<<duration<<" seconds"<<std::endl;
+}
+
 void CellFactory::autoWorkFlow(void){
   #ifdef CF_DEBUG
   std::cout << "DEBUG: accessfile() called by process " << ::getpid() << " (parent: " << ::getppid() << ")" << std::endl;
@@ -116,14 +133,14 @@ void CellFactory::autoWorkFlow(void){
 }
 
 bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, double scaledist,std::vector<double> &set, int w_slices, int h_slices, double& area, double& volume, particleAttr& pattr){
-				double rx1,ry1,rz1,rx2,ry2,rz2,rmin;
+				double rx1,ry1,rz1,rx2,ry2,rz2;//,rmin;
         double eps1,eps2;
-        Vector3d Position;
+        Vector3r Position;
         Quaternionr Ori;
 				bool polysuper = false;
-				if(set.size()==14){
+				if(set.size()==15){
 					polysuper = true;
-				}else if(set.size()==14){
+				}else if(set.size()==12){
 					polysuper = false;
 				}else{
 					std::cerr<<"Error: the column number of the position file is not correct!"<<std::endl;
@@ -138,7 +155,7 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
 	        rz2 = set[5];
 	        eps1 = set[6];
 	        eps2 = set[7];//
-	        Position = Vector3d(set[8], set[9], set[10]);
+	        Position = Vector3r(set[8], set[9], set[10]);
 					Ori.w() = set[11];
 					Ori.x() = set[12];
 					Ori.y() = set[13];
@@ -149,7 +166,7 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
 	        rz1 = rz2 = set[2];
 	        eps1 = set[3];
 	        eps2 = set[4];//
-	        Position = Vector3d(set[5], set[6], set[7]);
+	        Position = Vector3r(set[5], set[6], set[7]);
 					Ori.w() = set[8];
 					Ori.x() = set[9];
 					Ori.y() = set[10];
@@ -166,17 +183,17 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
 				double xmin(1e10),xmax(-1e10),ymin(1e10),ymax(-1e10),zmin(1e10),zmax(-1e10);
 
         //find rmin
-        rmin = (rx<ry)?rx:ry;
-        rmin = (rmin<rz)?rmin:rz;
+        //rmin = (rx<ry)?rx:ry;
+        //rmin = (rmin<rz)?rmin:rz;
 				//find rmax
-				pattr.radius = PS.getrmax();
+				pattr.radius = PS.getr_max();
         int i,j,w=w_slices,h=h_slices;
         double a=0.0,b=0.0,phi0,phi1;
         double hStep=M_PI/(h-1);
         double wStep=2*M_PI/w;
 				//double scale = 0.95;
 
-        Vector3d p,n;
+        Vector3r p,n;
         //std::cout<<"scale1="<<scale<<std::endl;
         //double scaledist=0.0;
         //scaledist = scale*rmin;
@@ -193,7 +210,7 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
 	        //get surface point
 					p = PS.getSurfaceMC(Vector2r(phi0,phi1));
 						//get out-ward normal at the surface point
-					n = PS.getNormal(Vector2r(phi0,phi1))
+					n = PS.getNormal(Vector2r(phi0,phi1));
             n.normalize();
             //std::cout<<"pnorm="<<p.norm()<<std::endl;
             //std::cout<<"rmin="<<rmin<<std::endl;
@@ -221,7 +238,7 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
         //get surface point
 				p = PS.getSurfaceMC(Vector2r(phi0,phi1));
           //get out-ward normal at the surface point
-				n = PS.getNormal(Vector2r(phi0,phi1))
+				n = PS.getNormal(Vector2r(phi0,phi1));
         n.normalize();
         //std::cout<<"pnorm="<<p.norm()<<std::endl;
         //std::cout<<"rmin="<<rmin<<std::endl;

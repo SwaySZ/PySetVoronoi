@@ -45,6 +45,7 @@ BOOST_PYTHON_MODULE(setvoronoi){
     .def("genPointClouds",&CellFactory::genPointClouds,(py::arg("w_slices")=20,py::arg("h_slices")=20),"initialize a cell machine")
     .def("neighborSearch",&CellFactory::neighborSearch,"reset the cell machine for another cell computation if needed.")
     .def("autoWorkFlow",&CellFactory::autoWorkFlow,"")
+    .def("processingOne",&CellFactory::processingOne,"process only one particle.")
 		;
 
 	py::class_<CellMachine>("CellMachine","CellMachine builds a single Voronoi cell of a given particle surrounded by others.")

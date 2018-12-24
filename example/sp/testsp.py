@@ -1,7 +1,7 @@
 import sys,os,os.path
 sys.path.insert(1, '/home/swayzhao/software/DEM/EPomelo2/bin')
 
-import cellfactory as cf
+import setvoronoi as cf
 print cf.__doc__
 mycf = cf.CellFactory()
 mycf.infolder = "./input"

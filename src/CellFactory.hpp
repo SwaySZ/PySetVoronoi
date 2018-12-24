@@ -49,6 +49,7 @@ public:
   void genPointClouds(double w_slices,double h_slices);
   void neighborSearch(void);
   void processing(void);
+  void processingOne(unsigned int num);
   void autoWorkFlow(void);
   bool pointCloud_Superquadric(unsigned int id, std::string outfile, double scaledist,std::vector<double> &set, int w_slices, int h_slices, double& area, double& volume, particleAttr& pattr);
   //
