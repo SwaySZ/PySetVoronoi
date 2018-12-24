@@ -40,6 +40,8 @@ BOOST_PYTHON_MODULE(setvoronoi){
     .add_property("searchRadius",&CellFactory::get_searchRadius,&CellFactory::set_searchRadius,"neighbour lists would be built within a sphere with a radius of seachRadius")
     .add_property("posFile",&CellFactory::get_posFile,&CellFactory::set_posFile,"path of the file of particle positions.")
     .add_property("cellVTK",&CellFactory::get_cellVTK,&CellFactory::set_cellVTK,"whether to write vtk files for all cells.")
+    .add_property("scale",&CellFactory::get_scale,&CellFactory::set_scale,"")
+    .add_property("boxScale",&CellFactory::get_boxScale,&CellFactory::set_boxScale,"")
     .add_property("parShrink",&CellFactory::get_parShrink,&CellFactory::set_parShrink,"shrink a particle by a small gap (parShrink) during generating its point cloud.")
     .def("processing",&CellFactory::processing,"Processing tessellation.")
     .def("genPointClouds",&CellFactory::genPointClouds,(py::arg("w_slices")=20,py::arg("h_slices")=20),"initialize a cell machine")

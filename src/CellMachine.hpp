@@ -50,6 +50,7 @@ private:
   //std::map < unsigned long long, int> labelidmap;//no need to use map, just vector is ok
   std::vector<int> labelidmap;
   double scale;//scale the data to avoid numerical errors when processing voro++. Voro++'s nplnae throws bugs here.
+  double boxScale;//scale box to consider more points for tessellation
   unsigned int blockMem;//memory for each block to be allocated by dufault
   //pointpattern *pp;
   //particleAttr pAttr;
@@ -83,6 +84,8 @@ public:
   //
   double get_scale(){return scale;}
   void set_scale(double sc){scale = sc;}
+  double get_boxScale(){return boxScale;}
+  void set_boxScale(double sc){boxScale = sc;}
   void set_cellVTK(bool cv){cellVTK=cv;}
   bool get_cellVTK(){return cellVTK;}
 };

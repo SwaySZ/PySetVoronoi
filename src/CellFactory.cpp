@@ -33,6 +33,8 @@
 CellFactory::CellFactory(){
   searchRadius = 4.0;
   parShrink = 0.01e-3;
+  scale = 1000.0;
+  boxScale = 2.0;
   //w_slices = 20;
   //h_slices = 20;
   cellVTK = false;
@@ -93,6 +95,8 @@ void CellFactory::processing(void){
   //#endif
     CellMachine CM = CellMachine(in_folder,out_folder);
     CM.set_cellVTK(cellVTK);
+    CM.set_scale(scale);
+    CM.set_boxScale(boxScale);
     //loading point clouds from local files
     CM.pushPoints(parAttrlist[i]);
     //comupute cells
@@ -110,6 +114,8 @@ void CellFactory::processingOne(unsigned int pid){
   //#endif
     CellMachine CM = CellMachine(in_folder,out_folder);
     CM.set_cellVTK(cellVTK);
+    CM.set_scale(scale);
+    CM.set_boxScale(boxScale);
     //loading point clouds from local files
     CM.pushPoints(parAttrlist[pid]);
     //comupute cells

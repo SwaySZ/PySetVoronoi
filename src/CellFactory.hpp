@@ -38,6 +38,8 @@ private:
   std::string posFile;//position file of particles
   std::vector<particleAttr> parAttrlist;//store particle attributes
   double parShrink;//shrink a particle by a small gap (parShrink) during generating its point cloud.
+  double boxScale;
+  double scale;
   //double w_slices;//slicing
   //double h_slices;
   bool cellVTK;//output cells' vtk files
@@ -65,6 +67,10 @@ public:
   bool get_cellVTK(){return cellVTK;}
   void set_parShrink(double ps){parShrink = ps;}
   double get_parShrink(){return parShrink;}
+  double get_scale(){return scale;}
+  void set_scale(double sc){scale = sc;}
+  double get_boxScale(){return boxScale;}
+  void set_boxScale(double sc){boxScale = sc;}
 
 };
 #endif

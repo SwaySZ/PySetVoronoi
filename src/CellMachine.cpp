@@ -58,6 +58,7 @@ CellMachine::CellMachine(std::string input_folder,std::string output_folder){
   savepov = false;
   savepoly = false;
   delta = 0.1e-3;//
+  boxScale = 2.0;
   scale = 1000.0;//scale up 3 order of magnitude. Thus, an input unit of meter yields an output unit of millimeter. However, for the sake of consistence, we scale down the results for writing out.
   pcon = NULL;
   //pp = NULL;
@@ -237,13 +238,13 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   //read wall boundary
   readWall(in_folder + "/walls.dat");
   //define the box size by considering the global wall
-
-  xmin = std::max(pAttr.centerx - pAttr.xrange*2.0, wall_xmin);
-  xmax = std::min(pAttr.centerx + pAttr.xrange*2.0, wall_xmax);
-  ymin = std::max(pAttr.centery - pAttr.yrange*2.0, wall_ymin);
-  ymax = std::min(pAttr.centery + pAttr.yrange*2.0, wall_ymax);
-  zmin = std::max(pAttr.centerz - pAttr.zrange*2.0, wall_zmin);
-  zmax = std::min(pAttr.centerz + pAttr.zrange*2.0, wall_zmax);
+  std::cout<<"scale="<<scale<<" boxScale="<<boxScale<<std::endl;
+  xmin = std::max(pAttr.centerx - pAttr.xrange*boxScale, wall_xmin);
+  xmax = std::min(pAttr.centerx + pAttr.xrange*boxScale, wall_xmax);
+  ymin = std::max(pAttr.centery - pAttr.yrange*boxScale, wall_ymin);
+  ymax = std::min(pAttr.centery + pAttr.yrange*boxScale, wall_ymax);
+  zmin = std::max(pAttr.centerz - pAttr.zrange*boxScale, wall_zmin);
+  zmax = std::min(pAttr.centerz + pAttr.zrange*boxScale, wall_zmax);
   //create a voro container
   //std::cout<<"creating a container..."<<std::endl;
   //std::cout<<xmin<<" "<<xmax<<" "<<ymin<<" "<<ymax<<" "<<zmin<<" "<<zmax<<nx<<ny<<nz<<std::endl;
