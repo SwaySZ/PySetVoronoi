@@ -10,10 +10,10 @@ BOOST_INC=-I/home/swayzhao/software/DEM/3rdlib/boost167/include
 BOOST_LIB=-L/home/swayzhao/software/DEM/3rdlib/boost167/lib
 #python 2.7
 PYTHON_INC=-I/usr/include/python2.7
-MAIN = src/CellFactory
+MAIN = src/SetVoronoi
 
 
-all: obj/cellfactory.o LINK
+all: obj/setvoronoi.o LINK
 
 obj/voro.o: lib/voro++/src/voro++.*
 	$(CXX) -c  -o  obj/voro.o lib/voro++/src/voro++.cc
@@ -27,10 +27,11 @@ obj/cellmachine.o: src/CellMachine.*
 		$(CXX) $(VORO_INC) -c  -o obj/cellmachine.o src/CellMachine.cpp
 
 obj/cellfactory.o: src/CellFactory.cpp
-	$(CXX)  -c  $(E_INC) $(PYTHON_INC) $(BOOST_INC) $(VORO_INC) -o obj/cellfactory.o src/CellFactory.cpp
-
-LINK: obj/cellfactory.o obj/voro.o obj/fileloader.o obj/pointpattern.o obj/cellmachine.o
-	$(CXX) obj/cellfactory.o obj/voro.o obj/fileloader.o obj/pointpattern.o obj/cellmachine.o -o bin/cellfactory.so -shared `pkg-config python --cflags` $(BOOST_LIB) -lboost_python27 -lm -ldl
+	$(CXX)  -c  $(E_INC) $(VORO_INC) -o obj/cellfactory.o src/CellFactory.cpp
+obj/setvoronoi.o: src/SetVoronoi.cpp 
+	$(CXX)  -c  $(E_INC) $(PYTHON_INC) $(BOOST_INC) $(VORO_INC) -o obj/setvoronoi.o src/SetVoronoi.cpp
+LINK: obj/setvoronoi.o obj/cellfactory.o obj/voro.o obj/fileloader.o obj/pointpattern.o obj/cellmachine.o
+	$(CXX) obj/setvoronoi.o obj/cellfactory.o obj/voro.o obj/fileloader.o obj/pointpattern.o obj/cellmachine.o -o bin/setvoronoi.so -shared `pkg-config python --cflags` $(BOOST_LIB) -lboost_python27 -lm -ldl
 
 
 

@@ -17,9 +17,6 @@
  *
  * =====================================================================================
  */
-#include "pointpattern.hpp"
-#include "duplicationremover.hpp"
-#include "particleparameterset.hpp"
 #include "parAttr.hpp"
 #include <fstream>
 #include <string>
@@ -147,17 +144,17 @@ PolySuperellipsoid::PolySuperellipsoid(double rx1_, double rx2_,double ry1_, dou
 					rx = rxyz[i];
 					ry = rxyz[j+2];
 					rz = rxyz[k+4];
-					beta1 = Mathr::beta(0.5*eps1,eps1)*Mathr::beta(0.5*eps2,1.5*eps2);
-					beta2 = Mathr::beta(0.5*eps1,0.5*eps1)*Mathr::beta(0.5*eps2,eps2);
+					beta1 = beta(0.5*eps1,eps1)*beta(0.5*eps2,1.5*eps2);
+					beta2 = beta(0.5*eps1,0.5*eps1)*beta(0.5*eps2,eps2);
 					center[0] = (1-2*i)*rx*3.0/4.0*beta1/beta2;
 					center[1] = (1-2*j)*ry*3.0/4.0*beta1/beta2;
-					center[2] = (1-2*k)*rz*3.0/4.0*Mathr::beta(eps2,eps2)/Mathr::beta(eps2,0.5*eps2);
+					center[2] = (1-2*k)*rz*3.0/4.0*beta(eps2,eps2)/beta(eps2,0.5*eps2);
 					centers.push_back(center);
 					double a,v;//some coefficients
 					a = 0.125*rx*ry*rz*eps1*eps2;
-					beta1 = Mathr::beta(1.5*eps1, 0.5*eps1)*Mathr::beta(0.5*eps2,2.*eps2+1);
-					beta2 = Mathr::beta(0.5*eps1, 0.5*eps1+1)*Mathr::beta(1.5*eps2, eps2+1);
-					v = 2.0*a*Mathr::beta(eps1*0.5,eps1*0.5)*Mathr::beta(eps2*0.5+1,eps2);     //volume = 2a1a2a3ep1ep2B(ep1/2+1,ep1)B(ep2/2,ep2/2) see the reference
+					beta1 = beta(1.5*eps1, 0.5*eps1)*beta(0.5*eps2,2.*eps2+1);
+					beta2 = beta(0.5*eps1, 0.5*eps1+1)*beta(1.5*eps2, eps2+1);
+					v = 2.0*a*beta(eps1*0.5,eps1*0.5)*beta(eps2*0.5+1,eps2);     //volume = 2a1a2a3ep1ep2B(ep1/2+1,ep1)B(ep2/2,ep2/2) see the reference
 					//vols.push_back(v);
 					Volume += v;
 					massCenter += center*v;
@@ -249,155 +246,5 @@ Vector3r PolySuperellipsoid::getNormal(Vector2r phi)
 	n(1) /= rxyz[(n(1)>0?2:3)];
 	n(2) /= rxyz[(n(2)>0?4:5)];
 	return n;
-}
-
-void pointCloud_Superquadric(unsigned int id, std::string outfile, double scaledist,std::vector<double> &set, int w_slices, int h_slices, double& area, double& volume, particleAttr& pattr,bool polysuper){
-				double rx1,ry1,rz1,rx2,ry2,rz2,rmin;
-        double eps1,eps2;
-        Vector3d Position;
-        Quaternionr Ori;
-
-				if(polysuper){
-					rx1 = set[0];
-	        rx2 = set[1];
-	        ry1 = set[2];
-					ry2 = set[3];
-	        rz1 = set[4];
-	        rz2 = set[5];
-	        eps1 = set[6];
-	        eps2 = set[7];//
-	        Position = Vector3d(set[8], set[9], set[10]);
-					Ori.w() = set[11];
-					Ori.x() = set[12];
-					Ori.y() = set[13];
-					Ori.z() = set[14];
-				}else{
-					rx1 = rx2 = set[0];
-	        ry1 = ry2 = set[1];
-	        rz1 = rz2 = set[2];
-	        eps1 = set[3];
-	        eps2 = set[4];//
-	        Position = Vector3d(set[5], set[6], set[7]);
-					Ori.w() = set[8];
-					Ori.x() = set[9];
-					Ori.y() = set[10];
-					Ori.z() = set[11];
-				}
-				PolySuperellipsoid PS = PolySuperellipsoid(rx1,rx2,ry1,ry2,rz1,rz2,eps1,eps2);
-
-        Matrix3r A = Ori.toRotationMatrix();
-				//update particle attribution
-				pattr.ID = id;
-				pattr.centerx = set[5];
-				pattr.centery = set[6];
-				pattr.centerz = set[7];
-				double xmin(1e10),xmax(-1e10),ymin(1e10),ymax(-1e10),zmin(1e10),zmax(-1e10);
-
-        //find rmin
-        rmin = (rx<ry)?rx:ry;
-        rmin = (rmin<rz)?rmin:rz;
-				//find rmax
-				pattr.radius = PS.getrmax();
-        int i,j,w=w_slices,h=h_slices;
-        double a=0.0,b=0.0,phi0,phi1;
-        double hStep=M_PI/(h-1);
-        double wStep=2*M_PI/w;
-				//double scale = 0.95;
-
-        Vector3d p,n;
-        //std::cout<<"scale1="<<scale<<std::endl;
-        //double scaledist=0.0;
-        //scaledist = scale*rmin;
-				std::ofstream fp;
-				fp.open(outfile.c_str(),std::ios::out);
-				//pointpattern pp;
-		//caution:the two polar points should be degenerated.
-        for(a=hStep,i=0;i<h-2;i++,a+=hStep)
-        {
-          for(b=0.0,j=0;j<w;j++,b+=wStep)
-          {     phi0 = b;
-                phi1 = a-M_PI_2l;
-
-	        //get surface point
-					p = PS.getSurfaceMC(Vector2r(phi0,phi1));
-						//get out-ward normal at the surface point
-					n = PS.getNormal(Vector2r(phi0,phi1))
-            n.normalize();
-            //std::cout<<"pnorm="<<p.norm()<<std::endl;
-            //std::cout<<"rmin="<<rmin<<std::endl;
-            //scale = 1.0 - scaledist/p.norm();
-            //std::cout<<"scale="<<scale<<std::endl;
-            //p = p*scale;
-            p = p - n*scaledist;
-            p = A*p + Position;
-            //pp.addpoint(0,p(0),p(1),p(2));
-						fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
-						if(p(0)<xmin) xmin = p(0);
-						if(p(1)<ymin) ymin = p(1);
-						if(p(2)<zmin) zmin = p(2);
-						if(p(0)>xmax) xmax = p(0);
-						if(p(1)>ymax) ymax = p(1);
-						if(p(2)>zmax) zmax = p(2);
-         }
-      }
-		//two polar points
-		  for(a=0.0,i=0;i<2;i++,a+=M_PI)
-      {
-		    phi0 = 0;
-      	phi1 = a-M_PI_2l;
-
-        //get surface point
-				p = PS.getSurfaceMC(Vector2r(phi0,phi1));
-          //get out-ward normal at the surface point
-				n = PS.getNormal(Vector2r(phi0,phi1))
-        n.normalize();
-        //std::cout<<"pnorm="<<p.norm()<<std::endl;
-        //std::cout<<"rmin="<<rmin<<std::endl;
-        //scale = 1.0 - scaledist/p.norm();
-        //std::cout<<"scale="<<scale<<std::endl;
-        //p = p*scale;
-        p = p - n*scaledist;
-        p = A*p + Position;
-        //pp.addpoint(0,p(0),p(1),p(2));
-				fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
-				if(p(0)<xmin) xmin = p(0);
-				if(p(1)<ymin) ymin = p(1);
-				if(p(2)<zmin) zmin = p(2);
-				if(p(0)>xmax) xmax = p(0);
-				if(p(1)>ymax) ymax = p(1);
-				if(p(2)>zmax) zmax = p(2);
-      }
-				 //we could use explicit function to get the AABB
-				 pattr.xmin = xmin;
-				 pattr.xmax = xmax;
-				 pattr.ymin = ymin;
-				 pattr.ymax = ymax;
-				 pattr.zmin = zmin;
-				 pattr.zmax = zmax;
-				 // it may be not necessary to store xrange, yrange and zrange.
-				 pattr.xrange = xmax - xmin;
-				 pattr.yrange = ymax - ymin;
-				 pattr.zrange = zmax - zmin;
-				 /*std::cout << "polywriter: remove duplicates" << std::endl;
-				 duplicationremover d(16,16,16);
-				 d.setboundaries(xmin, xmax, ymin, ymax, zmin, zmax);
-				 std::cout << "\tadding"<<pp.points.size()<<" points" << std::endl;
-				 d.addPoints(pp, false);
-				 std::cout << "\tremoving duplicates" << std::endl;
-				 double epsilon = 1e-6;
-				 d.removeduplicates(epsilon);
-				 d.getallPoints(pp);
-				 std::cout << "\tget back "<<pp.points.size()<<" points" << std::endl;
-				 //write a file
-				 for(unsigned int i = 0;i<pp.points.size();i++){
-					 fp << pp.points.at(i).x<<"\t" << pp.points.at(i).y<<"\t" << pp.points.at(i).z<<std::endl;
-        }*/
-				fp.close();
-		//pattr: updated over
-
-	volume = PS.getVolume();     //volume = 2a1a2a3ep1ep2B(ep1/2+1,ep1)B(ep2/2,ep2/2) see the reference
-    //surface area
-  area = PS.getSurfaceArea(50,50);//2500 discretized points on the surface
-
 }
 #endif
