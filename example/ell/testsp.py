@@ -6,9 +6,12 @@ print sv.__doc__
 mycf = sv.CellFactory()
 mycf.infolder = "./input"
 mycf.outfolder = "./output"
-mycf.posFile = "./input/Particles.dat"
+mycf.posFile = "./Particles.dat"
+mycf.wallFile = "./Walls.dat"
+mycf.threadNum = 2#how many threads used
 mycf.cellVTK = True
 mycf.scale = 1.0
+mycf.boxScale =2.0
 mycf.parShrink = 0.1
 pid = 0
 #you can execute it step by step
