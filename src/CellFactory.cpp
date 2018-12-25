@@ -89,6 +89,9 @@ void CellFactory::genPointClouds(double w_slices=20,double h_slices = 20){
 }
 
 void CellFactory::neighborSearch(void){
+  //#ifdef CF_OPENMP
+  //  #pragma omp parallel for schedule(dynamic,1) num_threads(threadNum)
+  //#endif
   for(int i = 0 ;i< parAttrlist.size();i++){//mayby using pointer is faster
 //		particleAttr p1;
     double dist = 0;
@@ -330,6 +333,7 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
 				 pattr.xrange = xmax - xmin;
 				 pattr.yrange = ymax - ymin;
 				 pattr.zrange = zmax - zmin;
+         //pattr.nearBoundary = false;//by default
 				 /*std::cout << "polywriter: remove duplicates" << std::endl;
 				 duplicationremover d(16,16,16);
 				 d.setboundaries(xmin, xmax, ymin, ymax, zmin, zmax);

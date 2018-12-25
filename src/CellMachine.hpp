@@ -81,6 +81,7 @@ public:
   bool isInBox(double x, double y, double z);//test if a point is inside the box
   void initial();//initialize a cell machine
   void reset();//reset the cell machine for another cell computation if needed.
+  //void checkBoundary(particleAttr& pAttr);//check if the particle is near the boundary
   //
   double get_scale(){return scale;}
   void set_scale(double sc){scale = sc;}

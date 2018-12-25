@@ -104,6 +104,7 @@ bool CellMachine::isInBox(double x, double y, double z){
   bool ret = (x<xmin)||(x>xmax)||(y<ymin)||(y>ymax)||(z<zmin)||(z>zmax);
   return !ret;
 }
+
 void CellMachine::readWall(std::string filename)
 {
     std::ifstream infile;
@@ -239,6 +240,12 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   cid = pAttr.ID;
   //read wall boundary
   readWall(wallFile);
+  //cellVTK
+  /*bool ret = ((pAttr.centerx-pAttr.radius)<wall_xmin)||((pAttr.centerx+pAttr.radius)>wall_xmax)||
+             ((pAttr.centery-pAttr.radius)<wall_ymin)||((pAttr.centery+pAttr.radius)>wall_ymax)||
+             ((pAttr.centerz-pAttr.radius)<wall_zmin)||((pAttr.centerz+pAttr.radius)>wall_zmax);
+  if(ret){cellVTK = true;}else{cellVTK=false;}
+  */
   //define the box size by considering the global wall
   std::cout<<"scale="<<scale<<" boxScale="<<boxScale<<std::endl;
   xmin = std::max(pAttr.centerx - pAttr.xrange*boxScale, wall_xmin);
@@ -301,17 +308,24 @@ void CellMachine::writeGlobal(){
 			std::string path = out_folder + "/cellProperties.dat";
       if(cid==0){
         fp.open(path.c_str(),std::ios::out);
-        fp << "#id cellVolume cellSurfaceArea normalTensor(1-6) normalAreaTensor(1-6)" << std::endl;
+        fp << "#id cellVolume cellSurfaceArea normalAreaTensor(n11,n12,n13,n22,n23,n33)" << std::endl;
       }else{
         fp.open(path.c_str(),std::ios::out| std::ios::app);
       }
       #endif
+      /*
 			fp <<  cid<<" "<<std::scientific << cellVolume/pow(scale,3) << " " << cellSurfaceArea/pow(scale,2)
 							<< " " <<cellNormalTensor[0]<< " " <<cellNormalTensor[1]<< " " <<cellNormalTensor[2]
               << " " <<cellNormalTensor[3]<< " " <<cellNormalTensor[4]<< " " <<cellNormalTensor[5]
 							<< " " <<cellNormalAreaTensor[0]<< " " <<cellNormalAreaTensor[1]<< " " <<cellNormalAreaTensor[2]
               << " " <<cellNormalAreaTensor[3]<< " " <<cellNormalAreaTensor[4]<< " " <<cellNormalAreaTensor[5]
 							<< std::endl;
+      */
+      fp <<  cid<<" "<<std::scientific << cellVolume/pow(scale,3) << " " << cellSurfaceArea/pow(scale,2)
+							<< " " <<cellNormalAreaTensor[0]<< " " <<cellNormalAreaTensor[1]<< " " <<cellNormalAreaTensor[2]
+              << " " <<cellNormalAreaTensor[3]<< " " <<cellNormalAreaTensor[4]<< " " <<cellNormalAreaTensor[5]
+							<< std::endl;
+
 			fp.close();
 }
 void CellMachine::writeLocal(polywriter *pw){
@@ -445,8 +459,9 @@ void CellMachine::processing(){
 													positionlist.push_back(z);
 											}
 											 //we only add faces belonging to the current particle
-					            pw->addface(positionlist, l);
-
+                      if(cellVTK){//FIXME:should be another flag.
+                        pw->addface(positionlist, l);
+                      }
 											//#endif
 	                    //calculate surface area
 											double ux, uy, uz, vx,vy,vz, wx,wy,wz,area;
@@ -469,13 +484,15 @@ void CellMachine::processing(){
 													//normalize the vector
 
 													//std::cout<<"l="<<l<<std::endl;
+                          /*
 													cellNormalTensor[0] += wx*wx/area_tmp1;//n11
 													cellNormalTensor[1] += wx*wy/area_tmp1;//n12
 													cellNormalTensor[2] += wx*wz/area_tmp1;//n13
 													cellNormalTensor[3] += wy*wy/area_tmp1;//n22
 													cellNormalTensor[4] += wy*wz/area_tmp1;//n23
 													cellNormalTensor[5] += wz*wz/area_tmp1;//n33
-													//
+                          */
+													//just compute the product of normal and area
 													cellNormalAreaTensor[0] += 0.5*wx*wx/area_tmp2;//n11
 													cellNormalAreaTensor[1] += 0.5*wx*wy/area_tmp2;//n12
 													cellNormalAreaTensor[2] += 0.5*wx*wz/area_tmp2;//n13
