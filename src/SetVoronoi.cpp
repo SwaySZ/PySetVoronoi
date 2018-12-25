@@ -16,6 +16,7 @@
  *
  * =====================================================================================
  */
+#include "config.hpp"
 #include "CellMachine.hpp"
 #include "CellFactory.hpp"
 #include<boost/python.hpp>
@@ -29,6 +30,7 @@ BOOST_PYTHON_MODULE(setvoronoi){
 	py::docstring_options docopt;
 	docopt.enable_all();
 	docopt.disable_cpp_signatures();
+
   /*
   py::class_<parAttr>("parAttr","struct for particle attributes.")
     .add_property("scale",&CellMachine::get_scale,&CellMachine::set_scale,"Scale up data to avoid numerical issues when conducting tessellation.")
@@ -39,10 +41,12 @@ BOOST_PYTHON_MODULE(setvoronoi){
     .add_property("outfolder",&CellFactory::get_outfolder,&CellFactory::set_outfolder,"directory where the data would be output.")
     .add_property("searchRadius",&CellFactory::get_searchRadius,&CellFactory::set_searchRadius,"neighbour lists would be built within a sphere with a radius of seachRadius")
     .add_property("posFile",&CellFactory::get_posFile,&CellFactory::set_posFile,"path of the file of particle positions.")
+    .add_property("wallFile",&CellFactory::get_wallFile,&CellFactory::set_wallFile,"path of the file of wall positions.")
     .add_property("cellVTK",&CellFactory::get_cellVTK,&CellFactory::set_cellVTK,"whether to write vtk files for all cells.")
     .add_property("scale",&CellFactory::get_scale,&CellFactory::set_scale,"")
     .add_property("boxScale",&CellFactory::get_boxScale,&CellFactory::set_boxScale,"")
     .add_property("parShrink",&CellFactory::get_parShrink,&CellFactory::set_parShrink,"shrink a particle by a small gap (parShrink) during generating its point cloud.")
+    .add_property("threadNum",&CellFactory::get_threadNum,&CellFactory::set_threadNum,"the thread number for openMP parallization.")
     .def("processing",&CellFactory::processing,"Processing tessellation.")
     .def("genPointClouds",&CellFactory::genPointClouds,(py::arg("w_slices")=20,py::arg("h_slices")=20),"initialize a cell machine")
     .def("neighborSearch",&CellFactory::neighborSearch,"reset the cell machine for another cell computation if needed.")

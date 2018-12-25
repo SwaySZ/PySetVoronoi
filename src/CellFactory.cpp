@@ -20,14 +20,12 @@
 #include "Superquadrics.hpp"
 #include "CellFactory.hpp"
 #include "CellMachine.hpp"
+#include <pthread.h>
+#include <omp.h>
 #include <iostream>
 #include <fstream>
 #include <chrono>
 #include <thread>
-
-#define CF_OPENMP//using openMP, to do
-#define CF_DEBUG
-
 
 
 CellFactory::CellFactory(){
@@ -38,6 +36,25 @@ CellFactory::CellFactory(){
   //w_slices = 20;
   //h_slices = 20;
   cellVTK = false;
+  threadNum = 2;
+  //check and create folders
+  //checkCreateFolder(in_folder);
+  //checkCreateFolder(out_folder);
+  //checkCreateFolder(out_folder+"/tmp/");
+
+}
+bool CellFactory::checkCreateFolder(std::string target){
+  if(target.length() == 0){std::cout<<"Directory is not created!"<<std::endl;return false;}
+  if(! boost::filesystem::exists(target)){// the target folder doest not exist, and create it.
+    bool ret = boost::filesystem::create_directory(target);
+    if(ret){std::cout<<"Folder "<<target<<" is created."<<std::endl;}
+    else{std::cout<<"Failed to create Folder "<<target<<std::endl;}
+    return ret;
+  }
+  else{
+    std::cout<<"Folder "<<target<<" exists!"<<std::endl;
+    return true;
+  }
 }
 void CellFactory::genPointClouds(double w_slices=20,double h_slices = 20){
   std::vector<particleparameterset> setlist;
@@ -91,17 +108,56 @@ void CellFactory::neighborSearch(void){
 void CellFactory::processing(void){
   std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
   //here we can use openMP (or MPI) for parallel computation
+  #ifdef CF_OPENMP
+  //omp_set_dynamic(0);     // Explicitly disable dynamic teams
+  //omp_set_num_threads(2); // Use 4 threads for all consecutive parallel regions
+  //#pragma omp parallel
+  //std::cout<<"max number "<<omp_get_max_threads()<<" thread(s)"<<std::endl;
+  //omp_set_num_threads(2);
+  //setenv("OMP_NUM_THREADS", "1", 2);
+    #pragma omp parallel for schedule(dynamic,1) num_threads(threadNum)
+  #endif
+    for(int i = 0 ;i< parAttrlist.size();i++){
+    //#endif
+      CellMachine CM = CellMachine(in_folder,out_folder);
+      CM.set_cellVTK(cellVTK);
+      CM.set_scale(scale);
+      CM.set_boxScale(boxScale);
+      CM.set_wallFile(wallFile);
+      //loading point clouds from local files
+      CM.pushPoints(parAttrlist[i]);
+      //comupute cells
+      CM.processing();
+    }
+  //}
+  //clear temporary files
+  #ifdef CF_OPENMP
+  std::ofstream outfile;
+  std::string outpath = out_folder+"/cellProperties.dat";
+  outfile.open(outpath.c_str());
+  outfile << "#id cellVolume cellSurfaceArea normalTensor(1-6) normalAreaTensor(1-6)" << std::endl;
   for(int i = 0 ;i< parAttrlist.size();i++){
-  //#endif
-    CellMachine CM = CellMachine(in_folder,out_folder);
-    CM.set_cellVTK(cellVTK);
-    CM.set_scale(scale);
-    CM.set_boxScale(boxScale);
-    //loading point clouds from local files
-    CM.pushPoints(parAttrlist[i]);
-    //comupute cells
-    CM.processing();
+    std::ifstream infile;
+    std::string path = out_folder + "/tmp/"+std::to_string(i)+"cellProperties.tmp";
+    infile.open(path.c_str(),std::ios::in);
+    if (infile.fail()){std::cout << "Cannot load file "<< std::endl;continue;}
+    #pragma GCC diagnostic ignored "-Wwrite-strings"
+    //cSplitString line("");
+    std::string line("");
+    std::getline(infile, line);
+    outfile << line <<std::endl;;
+    /*while (std::getline(infile, line))
+    {
+        if(line.find("#")!=std::string::npos) continue; // ignore comment lines
+        outfile << line;
+    }*/
+    //std::cout << "Lines loaded: " << linesloaded << std::endl << std::endl;
+    infile.close();
   }
+  outfile.close();
+  std::uintmax_t n = boost::filesystem::remove_all(out_folder+"/tmp/");
+  std::cout << "Deleted " << n << " files or directories\n";
+  #endif
   std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
   std::cout<<"Time ellapsed is:"<<duration<<" seconds"<<std::endl;
@@ -116,6 +172,7 @@ void CellFactory::processingOne(unsigned int pid){
     CM.set_cellVTK(cellVTK);
     CM.set_scale(scale);
     CM.set_boxScale(boxScale);
+    CM.set_wallFile(wallFile);
     //loading point clouds from local files
     CM.pushPoints(parAttrlist[pid]);
     //comupute cells

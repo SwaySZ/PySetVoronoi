@@ -1,6 +1,5 @@
 #ifndef __CELL_MACHINE__
 #define __CELL_MACHINE__
-#define DEBUG_CM_no
 /*
  * =====================================================================================
  *
@@ -22,7 +21,7 @@
  #include <iostream>
  #include <fstream>
  #include <map>
- //#include "process.hpp"
+ #include "config.hpp"
  #include <limits>
  #include <cmath>
  #include <sys/stat.h>
@@ -40,6 +39,7 @@ private:
   //configuration
 	std::string in_folder;//folder for input data
   std::string out_folder;//folder for output data
+  std::string wallFile;//wall position file; just for box wall
 	int nx, ny, nz;
   double xmin,xmax,ymin,ymax,zmin,zmax;//box size
   double wall_xmin,wall_xmax,wall_ymin,wall_ymax,wall_zmin,wall_zmax;//the global wall size
@@ -88,5 +88,7 @@ public:
   void set_boxScale(double sc){boxScale = sc;}
   void set_cellVTK(bool cv){cellVTK=cv;}
   bool get_cellVTK(){return cellVTK;}
+  void set_wallFile(std::string pf){wallFile = pf;}
+  std::string get_wallFile(){return wallFile;}
 };
 #endif

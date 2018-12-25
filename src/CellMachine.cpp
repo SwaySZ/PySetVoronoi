@@ -18,6 +18,7 @@
  */
 #include "CellMachine.hpp"
 #include "duplicationremover.hpp"
+
 void CellMachine::initial(){
   cid = -1;
   pid = 0;
@@ -50,6 +51,7 @@ CellMachine::CellMachine(std::string input_folder,std::string output_folder){
 	xpbc = ypbc = zpbc = false;//using non-periodic boundary by default
   in_folder = input_folder;
   out_folder = output_folder;
+  wallFile = input_folder+"Walls.dat";
   savereduced =false;
   removeduplicate = false;
   withboundary = false;
@@ -236,7 +238,7 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
 void CellMachine::pushPoints(particleAttr& pAttr){
   cid = pAttr.ID;
   //read wall boundary
-  readWall(in_folder + "/walls.dat");
+  readWall(wallFile);
   //define the box size by considering the global wall
   std::cout<<"scale="<<scale<<" boxScale="<<boxScale<<std::endl;
   xmin = std::max(pAttr.centerx - pAttr.xrange*boxScale, wall_xmin);
@@ -290,6 +292,12 @@ void CellMachine::pushPoints(particleAttr& pAttr){
 }
 void CellMachine::writeGlobal(){
 			std::ofstream fp;
+      #ifdef CF_OPENMP
+      //std::string path = out_folder + "/"+std::to_string(cid)+"cellProperties.dat";
+      std::string path = out_folder +"/tmp/"+std::to_string(cid)+"cellProperties.tmp";
+      fp.open(path.c_str(),std::ios::out);
+      //fp << "#id cellVolume cellSurfaceArea normalTensor(1-6) normalAreaTensor(1-6)" << std::endl;
+      #else
 			std::string path = out_folder + "/cellProperties.dat";
       if(cid==0){
         fp.open(path.c_str(),std::ios::out);
@@ -297,7 +305,7 @@ void CellMachine::writeGlobal(){
       }else{
         fp.open(path.c_str(),std::ios::out| std::ios::app);
       }
-
+      #endif
 			fp <<  cid<<" "<<std::scientific << cellVolume/pow(scale,3) << " " << cellSurfaceArea/pow(scale,2)
 							<< " " <<cellNormalTensor[0]<< " " <<cellNormalTensor[1]<< " " <<cellNormalTensor[2]
               << " " <<cellNormalTensor[3]<< " " <<cellNormalTensor[4]<< " " <<cellNormalTensor[5]
