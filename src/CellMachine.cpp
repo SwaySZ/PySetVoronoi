@@ -308,7 +308,7 @@ void CellMachine::writeGlobal(){
 			std::string path = out_folder + "/cellProperties.dat";
       if(cid==0){
         fp.open(path.c_str(),std::ios::out);
-        fp << "#id cellVolume cellSurfaceArea normalAreaTensor(n11,n12,n13,n22,n23,n33)" << std::endl;
+        fp << "#id cellVolume cellSurfaceArea normalizedNormalAreaTensor(n11,n12,n13,n22,n23,n33)" << std::endl;
       }else{
         fp.open(path.c_str(),std::ios::out| std::ios::app);
       }
@@ -321,6 +321,7 @@ void CellMachine::writeGlobal(){
               << " " <<cellNormalAreaTensor[3]<< " " <<cellNormalAreaTensor[4]<< " " <<cellNormalAreaTensor[5]
 							<< std::endl;
       */
+      for(int i=0;i<6;i++){cellNormalAreaTensor[i] /= cellSurfaceArea;}
       fp <<  cid<<" "<<std::scientific << cellVolume/pow(scale,3) << " " << cellSurfaceArea/pow(scale,2)
 							<< " " <<cellNormalAreaTensor[0]<< " " <<cellNormalAreaTensor[1]<< " " <<cellNormalAreaTensor[2]
               << " " <<cellNormalAreaTensor[3]<< " " <<cellNormalAreaTensor[4]<< " " <<cellNormalAreaTensor[5]

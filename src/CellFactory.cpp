@@ -138,7 +138,7 @@ void CellFactory::processing(void){
   std::ofstream outfile;
   std::string outpath = out_folder+"/cellProperties.dat";
   outfile.open(outpath.c_str());
-  outfile << "#id cellVolume cellSurfaceArea normalTensor(1-6) normalAreaTensor(1-6)" << std::endl;
+  outfile << "#id cellVolume cellSurfaceArea normalizedNormalAreaTensor(n11,n12,n13,n22,n23,n33)" << std::endl;
   for(int i = 0 ;i< parAttrlist.size();i++){
     std::ifstream infile;
     std::string path = out_folder + "/tmp/"+std::to_string(i)+"cellProperties.tmp";
