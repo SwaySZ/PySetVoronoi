@@ -33,7 +33,7 @@
  #include "postprocessing.hpp"
  #include "csplitstring.hpp"
  #include "parAttr.hpp"
-
+ #include "mathbase.hpp"
 class CellMachine{//this class is designed to handle the computation of a single particle's cell.
 private:
   //configuration
@@ -58,10 +58,12 @@ private:
   double delta;//shrink the box to get gaps between points and box-walls
   //cell properties
   int cid;//cell id, also particle id
+  double px,py,pz;//cell position, i.e., the mass center of its enclosed particle
   double cellVolume;
   double cellSurfaceArea;
   double cellNormalTensor[6];//six components of normalTensor(1-6)
   double cellNormalAreaTensor[6];//six components of normalAreaTensor(1-6)
+  Matrix3r deformationF;
 public:
 	CellMachine(std::string input_folder,std::string output_folder);
   CellMachine();

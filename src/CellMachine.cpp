@@ -27,6 +27,7 @@ void CellMachine::initial(){
   cellSurfaceArea = 0.0;
   for(int i=0;i<6;i++) cellNormalTensor[i]=0.0;
   for(int i=0;i<6;i++) cellNormalAreaTensor[i]=0.0;
+  deformationF = Matrix3r::Zero();
   labelidmap.clear();
 }
 CellMachine::CellMachine(){
@@ -67,6 +68,8 @@ CellMachine::CellMachine(std::string input_folder,std::string output_folder){
   initial();
   blockMem = 32;
   nx = ny = nz =10;//we try to guess a better value for each of them
+  px = py = pz = 0;
+
 	//to do,
 }
 void CellMachine::reset(){
@@ -238,6 +241,9 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
 
 void CellMachine::pushPoints(particleAttr& pAttr){
   cid = pAttr.ID;
+  px = pAttr.centerx;
+  py = pAttr.centery;
+  pz = pAttr.centerz;
   //read wall boundary
   readWall(wallFile);
   //cellVTK
@@ -321,10 +327,15 @@ void CellMachine::writeGlobal(){
               << " " <<cellNormalAreaTensor[3]<< " " <<cellNormalAreaTensor[4]<< " " <<cellNormalAreaTensor[5]
 							<< std::endl;
       */
+      deformationF /= cellSurfaceArea;
       for(int i=0;i<6;i++){cellNormalAreaTensor[i] /= cellSurfaceArea;}
       fp <<  cid<<" "<<std::scientific << cellVolume/pow(scale,3) << " " << cellSurfaceArea/pow(scale,2)
 							<< " " <<cellNormalAreaTensor[0]<< " " <<cellNormalAreaTensor[1]<< " " <<cellNormalAreaTensor[2]
               << " " <<cellNormalAreaTensor[3]<< " " <<cellNormalAreaTensor[4]<< " " <<cellNormalAreaTensor[5]
+              //deformationF
+              << " " <<deformationF(0,0)<< " " <<deformationF(0,1)<< " " <<deformationF(0,2)
+              << " " <<deformationF(1,0)<< " " <<deformationF(1,1)<< " " <<deformationF(1,2)
+              << " " <<deformationF(2,0)<< " " <<deformationF(2,1)<< " " <<deformationF(2,2)
 							<< std::endl;
 
 			fp.close();
@@ -382,6 +393,7 @@ void CellMachine::processing(){
     delete pcon;
     pcon = NULL;
 		polywriter *pw = new polywriter();
+    double epsilon = 1e-8*scale;
 		unsigned long long numberofpoints = labelidmap.size();
 		// merge voronoi cells to set voronoi diagram
 		// loop over all voronoi cells
@@ -425,7 +437,7 @@ void CellMachine::processing(){
 
 							std::vector<double> vertices;   // all vertices for this cell
 							c.vertices(xc,yc,zc, vertices);
-
+              Vector3r x_par = Vector3r(xc-px, yc-py, zc-pz);//vector of the point on the particle
 							std::vector<int> w; // neighbors of faces
 							c.neighbors(w);
 							// for this cell, loop over all faces and get the corresponding neighbors
@@ -446,6 +458,7 @@ void CellMachine::processing(){
 											std::vector<unsigned int> facevertexlist;
 											getFaceVerticesOfFace(f, k, facevertexlist);
 											std::vector<double> positionlist;
+                      double tmpx(0.0),tmpy(0.0),tmpz(0.0);
 											for (
 													auto it = facevertexlist.begin();
 													it != facevertexlist.end();
@@ -455,6 +468,25 @@ void CellMachine::processing(){
 													double x = vertices[vertexindex*3];
 													double y = vertices[vertexindex*3+1];
 													double z = vertices[vertexindex*3+2];
+                          int ind = positionlist.size();
+                          if(ind!=0){
+                              tmpx = positionlist[ind-3];
+                              tmpy = positionlist[ind-2];
+                              tmpz = positionlist[ind-1];
+
+                            if(fabs(tmpx - x)<epsilon && fabs(tmpy - y)<epsilon && fabs(tmpz - z)< epsilon){
+                              continue;
+                            }
+                            if(it == (facevertexlist.end()-1)){
+                              tmpx = positionlist[0];
+                              tmpy = positionlist[1];
+                              tmpz = positionlist[2];
+                              if(fabs(tmpx - x)<epsilon && fabs(tmpy - y)<epsilon && fabs(tmpz - z)< epsilon){
+                                continue;
+                              }
+                            }
+                          }
+                          //FIXME:Points on a straight are not excluded.
 													positionlist.push_back(x);
 													positionlist.push_back(y);
 													positionlist.push_back(z);
@@ -466,6 +498,8 @@ void CellMachine::processing(){
 											//#endif
 	                    //calculate surface area
 											double ux, uy, uz, vx,vy,vz, wx,wy,wz,area;
+                      double center_x(0.0), center_y(0.0), center_z(0.0);
+                      Vector3r x_cell = Vector3r::Zero();//vector of the center of a facet
 											area = 0.0;
 											for (unsigned int i=1;i < positionlist.size()/3-1;i++)
 											{
@@ -503,8 +537,18 @@ void CellMachine::processing(){
 											//}
 
 													area += area_tmp2;
+                          //center of a triangle
+                          center_x = positionlist[3*i] + positionlist[3*i+3] + positionlist[0];
+                          center_y = positionlist[3*i+1] + positionlist[3*i+4] + positionlist[1];;
+                          center_z = positionlist[3*i+2] + positionlist[3*i+5] + positionlist[2];
+                          x_cell += Vector3r(center_x,center_y,center_z)*area_tmp2;
 											}
 											cellSurfaceArea += 0.5*area;
+                      x_cell /= 3.0*area;
+                      x_cell -= Vector3r(px,py,pz);
+                      Vector3r v1 = x_cell.normalized();
+                      Vector3r v2 = x_par.normalized();
+                      deformationF += 0.5*area*x_cell.norm()/x_par.norm()*v1*v2.transpose();
 											//caculate the unit normal vector of the facet
 
 									}

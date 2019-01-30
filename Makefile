@@ -26,7 +26,7 @@ obj/fileloader.o: src/fileloader.*
 obj/pointpattern.o: src/pointpattern.*
 	$(CXX) -c -o obj/pointpattern.o src/pointpattern.cpp
 obj/cellmachine.o: src/CellMachine.*
-		$(CXX) $(VORO_INC) -c  -o obj/cellmachine.o src/CellMachine.cpp
+		$(CXX) $(E_INC) $(VORO_INC) -c  -o obj/cellmachine.o src/CellMachine.cpp
 obj/superquadric.o: src/Superquadrics.cpp
 	$(CXX)  -c  $(E_INC) -o obj/superquadric.o src/Superquadrics.cpp
 obj/cellfactory.o: src/CellFactory.cpp
