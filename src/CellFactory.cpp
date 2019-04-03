@@ -251,9 +251,12 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
   				std::ofstream fp;
           double shrinkR = rx1 - scaledist;
           if(shrinkR<=0){shrinkR = 0.5*rx1;}//scaledist is too large
-  				fp.open(outfile.c_str(),std::ios::out);
+  				fp.open(outfile.c_str(),std::ios::out|std::ios::binary);//write data into a binary file instead of a text file for a better performance in reading.
   				//pointpattern pp;
   		    //caution:the two polar points should be degenerated.
+          //std::ofstream fp3;
+          //std::string outfile1 = "./test0.xyz";
+          //fp3.open(outfile1.c_str(),std::ios::out|std::ios::app);
           for(a=hStep,i=0;i<h-2;i++,a+=hStep)
           {
             for(b=0.0,j=0;j<w;j++,b+=wStep)
@@ -261,16 +264,19 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
                   phi1 = a-M_PI_2l;
 
             //get surface point
-          	double x,y,z;
+          	double xyz[3];
 
-          	x = shrinkR*cos(phi0)*cos(phi1);
-          	y = shrinkR*sin(phi0)*cos(phi1);
-          	z = shrinkR*sin(phi1);
+          	xyz[0] = shrinkR*cos(phi0)*cos(phi1) + Position[0];
+          	xyz[1] = shrinkR*sin(phi0)*cos(phi1) + Position[1];
+          	xyz[2] = shrinkR*sin(phi1) + Position[2];
 
-          	p = Position + Vector3r(x,y,z);
+          	//p = Position + Vector3r(x,y,z);
 
               //pp.addpoint(0,p(0),p(1),p(2));
-          		fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+            //if(id==0) fp3 <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+          	//fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+            fp.write( (char*)&xyz, sizeof xyz);
+
            }
           }
   		    //two polar points
@@ -280,15 +286,16 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
           	phi1 = a-M_PI_2l;
 
             //get surface point
-            double x,y,z;
-
-            x = 0;
-            y = 0;
-            z = shrinkR*sin(phi1);
-
-            p = Position + Vector3r(x,y,z);
+            double xyz[3];
+            xyz[0] = Position[0];
+            xyz[1] = Position[1];
+            xyz[2] = Position[2] + shrinkR*sin(phi1);
+            //p = Position + Vector3r(x,y,z);
             //pp.addpoint(0,p(0),p(1),p(2));
-          	fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+            //if(id==0) fp3 <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+          	//fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+            fp.write( (char*)&xyz, sizeof xyz);
+            //if (id==0) std::cout<<std::scientific<< xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
           }
           //we could use explicit function to get the AABB
           pattr.xmin = Position[0] - rx1;
@@ -301,7 +308,7 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
           pattr.xrange = rx1;
           pattr.yrange = rx1;
           pattr.zrange = rx1;
-
+          //fp3.close();//test
   				fp.close();
   		      //pattr: updated over
 
@@ -364,7 +371,7 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
         //double scaledist=0.0;
         //scaledist = scale*rmin;
 				std::ofstream fp;
-				fp.open(outfile.c_str(),std::ios::out);
+				fp.open(outfile.c_str(),std::ios::out|std::ios::binary);
 				//pointpattern pp;
 		//caution:the two polar points should be degenerated.
         for(a=hStep,i=0;i<h-2;i++,a+=hStep)
@@ -385,8 +392,10 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
             //p = p*scale;
             p = p - n*scaledist;
             p = A*p + Position;
-            //pp.addpoint(0,p(0),p(1),p(2));
-						fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+            double xyz[3];
+            xyz[0] = p(0);xyz[1] = p(1);xyz[2] = p(2);
+            fp.write( (char*)&xyz, sizeof xyz);
+						//fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
 						if(p(0)<xmin) xmin = p(0);
 						if(p(1)<ymin) ymin = p(1);
 						if(p(2)<zmin) zmin = p(2);
@@ -413,8 +422,11 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
         //p = p*scale;
         p = p - n*scaledist;
         p = A*p + Position;
+        double xyz[3];
+        xyz[0] = p(0);xyz[1] = p(1);xyz[2] = p(2);
+        fp.write( (char*)&xyz, sizeof xyz);
         //pp.addpoint(0,p(0),p(1),p(2));
-				fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+				//fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
 				if(p(0)<xmin) xmin = p(0);
 				if(p(1)<ymin) ymin = p(1);
 				if(p(2)<zmin) zmin = p(2);

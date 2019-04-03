@@ -167,7 +167,7 @@ void CellMachine::readWall(std::string filename)
 void CellMachine::readParticle(std::string filename, bool flag, int particleId)
 {   //flag: if true, check inside or outside the box
     std::ifstream infile;
-    infile.open(filename.data(),std::ifstream::in);
+    infile.open(filename.data(),std::ios::in|std::ios::binary);//binary files
     //testing
     #ifdef DEBUG_CM
     std::ofstream fp2;
@@ -185,6 +185,8 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
         std::cout << "Cannot load file " << filename << std::endl;
         return;
     }
+    /*
+    //read ascii files
 #pragma GCC diagnostic ignored "-Wwrite-strings"
     cSplitString line("");
     unsigned int linesloaded = 0;
@@ -235,7 +237,38 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
 
     }
     //std::cout << "Lines loaded: " << linesloaded << std::endl << std::endl;
+    */
 
+    //read binary files
+    //test
+    //std::ofstream fp3;
+    //std::string outfile1 = "./test.xyz";
+    //fp3.open(outfile1.c_str(),std::ios::out|std::ios::app);
+    double xyz[3];
+    while(infile.read( (char*)&xyz, sizeof xyz)){//!infile.eof() does not work
+      //if(particleId==0) std::cout <<std::scientific<< xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
+      if(flag){
+        if(isInBox(xyz[0],xyz[1],xyz[2])){
+          pcon->put(pid, xyz[0]*scale,xyz[1]*scale,xyz[2]*scale);
+          //pp->addpoint(particleId,xyz[0],xyz[1],xyz[2]);
+          labelidmap.push_back(particleId);
+          #ifdef DEBUG_CM
+          fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
+          #endif
+          ++pid;
+        }
+      }else{
+        pcon->put(pid, xyz[0]*scale,xyz[1]*scale,xyz[2]*scale);
+        //pp->addpoint(particleId,xyz[0],xyz[1],xyz[2]);
+        labelidmap.push_back(particleId);
+        #ifdef DEBUG_CM
+        fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
+        #endif
+        ++pid;
+      }
+
+    }
+    //fp3.close();
     infile.close();
     //fp2.close();
 }
@@ -369,7 +402,7 @@ void CellMachine::writeLocal(polywriter *pw){
 
 		//write pov file
 		if(cellPOV)
-		{ 
+		{
       pw->saveOnePolyPOVnew(out_folder+"/"+std::to_string(cid)+".inc", cid);
 				//pw->savePolyPOV(out_folder + "/cell.pov",xmin,xmax,ymin,ymax,zmin,zmax,rr);
 		}
