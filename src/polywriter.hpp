@@ -395,7 +395,69 @@ public:
 			saveOnePolyVTKnew(outfileprefix+std::to_string(*id)+suffix, *id);
 		}
 	}
+  void saveOnePolyPOVnew(std::string filename, unsigned int targetCellID)
+  {
+//        std::cout << "writing Polydata into a VTK file" << std::endl;
+      std::ofstream f;
+      f.open(filename.c_str(),std::ios::out);
+  //store points and polygons
+  std::vector< point> vtkPoints;
+  unsigned long numPoints = 0;
+      unsigned int face_num, enterty_num;
+      std::vector<unsigned long> polydata;//store polygon data:face_num vertice1_id vertice2_id ...
+      face_num = 0;
+      enterty_num = 0;
+      for (
+          auto it = this->faces.begin();
+          it != this->faces.end();
+          ++ it)
+      {
+          unsigned int faceID = it->first;
 
+          unsigned int cellID = this->faceCellMap.at(faceID);
+          if (cellID != targetCellID) continue;
+        std::vector<unsigned int> testing;
+
+
+
+          for (auto it2 = it->second.rbegin(); it2 != it->second.rend(); ++it2)
+          {
+          bool doppelt = false;
+          for(unsigned int kk = 0; kk < testing.size(); kk++ ){
+            if(testing[kk] == (*it2) ){
+              doppelt = true;
+              break;
+            }
+          }
+          if(doppelt) continue;
+              testing.push_back( (*it2) );
+          }
+        if(2 < testing.size()){
+
+
+            face_num += 1;
+            enterty_num += testing.size() + 1;
+              polydata.push_back(testing.size());
+              for(unsigned int kk = 0; kk < testing.size(); kk++ ){
+              //polydata.push_back(testing[kk]);
+              vtkPoints.push_back(this->p.points[testing[kk]-1]);
+              numPoints++;
+                  polydata.push_back(numPoints-1);
+          }
+
+          //draw a face as a polygon
+          f<<"polygon {"<<testing.size()<<",";
+          for(auto itt = testing.begin();itt != testing.end(); ++itt){
+              f << " <"<<p.points[(*itt)-1].x<<","<<p.points[(*itt)-1].y<<","<<p.points[(*itt)-1].z<<">";
+          }
+          f<<"}\n";//f<<"\nscale 0.01}\n";//scaling using for avoiding "Possible Parse Error: Singular matrix in MInvers"
+        }
+        else { std::cout << testing.size() << " " << cellID << std::endl;}
+      }
+
+  f.close();
+
+  };
     void savePolyPOV(std::string filename, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double rr)
     {
 //        std::cout << "writing Pov file for postprocessing in Povray" << std::endl;

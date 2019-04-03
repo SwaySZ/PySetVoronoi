@@ -24,7 +24,6 @@
 
 namespace py = boost::python;
 
-
 /*** c++-list to python-list */
 template<typename containedType>
 struct custom_vector_to_list{
