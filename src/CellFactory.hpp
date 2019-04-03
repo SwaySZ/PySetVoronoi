@@ -61,15 +61,15 @@ public:
   bool isInVisualIds(int id);
   bool pointCloud_Superquadric(unsigned int id, std::string outfile, double scaledist,std::vector<double> &set, int w_slices, int h_slices, double& area, double& volume, particleAttr& pattr);
   //
-  void set_infolder(std::string _infolder){in_folder = _infolder;std::cout<<"setting infolder"<<std::endl;checkCreateFolder(in_folder);}
+  void set_infolder(std::string _infolder){in_folder = _infolder;std::cout<<"setting infolder"<<std::endl;checkCreateFolder(in_folder);parAttrlist.clear();}
   std::string get_infolder(){return in_folder;}
-  void set_outfolder(std::string _outfolder){out_folder = _outfolder;checkCreateFolder(out_folder);checkCreateFolder(out_folder+"/tmp/");}
+  void set_outfolder(std::string _outfolder){out_folder = _outfolder;checkCreateFolder(out_folder);checkCreateFolder(out_folder+"/tmp/");parAttrlist.clear();}
   std::string get_outfolder(){return out_folder;}
   void set_searchRadius(double sr){searchRadius = sr;}
   double get_searchRadius(){return searchRadius;}
-  void set_posFile(std::string pf){posFile = pf;}
+  void set_posFile(std::string pf){posFile = pf;parAttrlist.clear();}
   std::string get_posFile(){return posFile;}
-  void set_wallFile(std::string pf){wallFile = pf;}
+  void set_wallFile(std::string pf){wallFile = pf;parAttrlist.clear();}
   std::string get_wallFile(){return wallFile;}
   void set_cellVTK(bool cv){cellVTK=cv;}
   bool get_cellVTK(){return cellVTK;}

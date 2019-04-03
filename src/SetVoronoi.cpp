@@ -50,7 +50,6 @@ struct custom_vector_from_seq{
 	}
 };
 
-
 BOOST_PYTHON_MODULE(setvoronoi){
 
   py::scope().attr("__doc__")="CellFactory is a wrapper for handling Set Voronoi Tessellation.";
