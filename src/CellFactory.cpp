@@ -36,6 +36,8 @@ CellFactory::CellFactory(){
   //w_slices = 20;
   //h_slices = 20;
   cellVTK = false;
+  cellPOV = false;
+  visualized_ids.clear();
   threadNum = 2;
   //check and create folders
   //checkCreateFolder(in_folder);
@@ -55,6 +57,15 @@ bool CellFactory::checkCreateFolder(std::string target){
     std::cout<<"Folder "<<target<<" exists!"<<std::endl;
     return true;
   }
+}
+
+bool CellFactory::isInVisualIds(int id){
+  bool flag = false;
+  if (visualized_ids.size()==0) return true;
+  for (std::vector<int>::iterator it = visualized_ids.begin() ; it != visualized_ids.end(); ++it){
+    if (id == (*it)) flag = true;
+  }
+  return flag;
 }
 void CellFactory::genPointClouds(double w_slices=20,double h_slices = 20){
   std::vector<particleparameterset> setlist;
@@ -123,7 +134,10 @@ void CellFactory::processing(void){
     for(int i = 0 ;i< parAttrlist.size();i++){
     //#endif
       CellMachine CM = CellMachine(in_folder,out_folder);
-      CM.set_cellVTK(cellVTK);
+      if(isInVisualIds(parAttrlist[i].ID)){//output all cells for empty visual list, or check it the specified cell should be output.
+        CM.set_cellVTK(cellVTK);
+        CM.set_cellPOV(cellPOV);
+      }
       CM.set_scale(scale);
       CM.set_boxScale(boxScale);
       CM.set_wallFile(wallFile);
@@ -172,7 +186,10 @@ void CellFactory::processingOne(unsigned int pid){
   if(pid>=parAttrlist.size()){std::cerr << "the particle id is not valid!" << std::endl;return;}
   //#endif
     CellMachine CM = CellMachine(in_folder,out_folder);
-    CM.set_cellVTK(cellVTK);
+    if(isInVisualIds(parAttrlist[pid].ID)){//output all cells for empty visual list, or check it the specified cell should be output.
+      CM.set_cellVTK(cellVTK);
+      CM.set_cellPOV(cellPOV);
+    }
     CM.set_scale(scale);
     CM.set_boxScale(boxScale);
     CM.set_wallFile(wallFile);
@@ -204,14 +221,97 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
         Vector3r Position;
         Quaternionr Ori;
 				bool polysuper = false;
+        bool sphere = false;
 				if(set.size()==15){
 					polysuper = true;
 				}else if(set.size()==12){
 					polysuper = false;
+        }else if(set.size()==4){//sphere
+          polysuper = false;
+          sphere = true;
 				}else{
 					std::cerr<<"Error: the column number of the position file is not correct!"<<std::endl;
 					return false;
 				}
+        if(sphere){//processing a sphere
+          rx1 = set[0];
+          Position = Vector3r(set[1], set[2], set[3]);
+          pattr.ID = id;
+  				pattr.centerx = Position[0];
+  				pattr.centery = Position[1];
+  				pattr.centerz = Position[2];
+  				double xmin(1e10),xmax(-1e10),ymin(1e10),ymax(-1e10),zmin(1e10),zmax(-1e10);
+  				pattr.radius = rx1;
+          int i,j,w=w_slices,h=h_slices;
+          double a=0.0,b=0.0,phi0,phi1;
+          double hStep=M_PI/(h-1);
+          double wStep=2*M_PI/w;
+
+          Vector3r p,n;
+  				std::ofstream fp;
+          double shrinkR = rx1 - scaledist;
+          if(shrinkR<=0){shrinkR = 0.5*rx1;}//scaledist is too large
+  				fp.open(outfile.c_str(),std::ios::out);
+  				//pointpattern pp;
+  		    //caution:the two polar points should be degenerated.
+          for(a=hStep,i=0;i<h-2;i++,a+=hStep)
+          {
+            for(b=0.0,j=0;j<w;j++,b+=wStep)
+            {     phi0 = b;
+                  phi1 = a-M_PI_2l;
+
+            //get surface point
+          	double x,y,z;
+
+          	x = shrinkR*cos(phi0)*cos(phi1);
+          	y = shrinkR*sin(phi0)*cos(phi1);
+          	z = shrinkR*sin(phi1);
+
+          	p = Position + Vector3r(x,y,z);
+
+              //pp.addpoint(0,p(0),p(1),p(2));
+          		fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+           }
+          }
+  		    //two polar points
+          for(a=0.0,i=0;i<2;i++,a+=M_PI)
+          {
+            phi0 = 0;
+          	phi1 = a-M_PI_2l;
+
+            //get surface point
+            double x,y,z;
+
+            x = 0;
+            y = 0;
+            z = shrinkR*sin(phi1);
+
+            p = Position + Vector3r(x,y,z);
+            //pp.addpoint(0,p(0),p(1),p(2));
+          	fp <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
+          }
+          //we could use explicit function to get the AABB
+          pattr.xmin = Position[0] - rx1;
+          pattr.xmax = Position[0] + rx1;
+          pattr.ymin = Position[1] - rx1;
+          pattr.ymax = Position[1] + rx1;
+          pattr.zmin = Position[2] - rx1;
+          pattr.zmax = Position[2] + rx1;
+          // it may be not necessary to store xrange, yrange and zrange.
+          pattr.xrange = rx1;
+          pattr.yrange = rx1;
+          pattr.zrange = rx1;
+
+  				fp.close();
+  		      //pattr: updated over
+
+        	volume = 4.0/3.0*M_PI*pow(rx1,3);     //volume = 2a1a2a3ep1ep2B(ep1/2+1,ep1)B(ep2/2,ep2/2) see the reference
+            //surface area
+          area = 4.0*M_PI*pow(rx1,2);//2500 discretized points on the surface
+        	return true;
+        }//sphere processing ends
+
+
 				if(polysuper){
 					rx1 = set[0];
 	        rx2 = set[1];

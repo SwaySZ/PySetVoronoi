@@ -44,6 +44,8 @@ private:
   //double w_slices;//slicing
   //double h_slices;
   bool cellVTK;//output cells' vtk files
+  bool cellPOV;
+  std::vector<int> visualized_ids;//id list for particle cells needed visualizing via vtk or pov.
   //configuration
   double searchRadius;//neighbour lists would be built within a sphere with a radius of seachRadius
   unsigned int threadNum;
@@ -56,6 +58,7 @@ public:
   void processingOne(unsigned int num);
   void autoWorkFlow(void);
   bool checkCreateFolder(std::string target);
+  bool isInVisualIds(int id);
   bool pointCloud_Superquadric(unsigned int id, std::string outfile, double scaledist,std::vector<double> &set, int w_slices, int h_slices, double& area, double& volume, particleAttr& pattr);
   //
   void set_infolder(std::string _infolder){in_folder = _infolder;std::cout<<"setting infolder"<<std::endl;checkCreateFolder(in_folder);}
@@ -70,6 +73,10 @@ public:
   std::string get_wallFile(){return wallFile;}
   void set_cellVTK(bool cv){cellVTK=cv;}
   bool get_cellVTK(){return cellVTK;}
+  void set_cellPOV(bool cv){cellPOV=cv;}
+  bool get_cellPOV(){return cellPOV;}
+  void set_visual_ids(std::vector<int> cv){visualized_ids=cv;}
+  std::vector<int> get_visual_ids(){return visualized_ids;}
   void set_parShrink(double ps){parShrink = ps;}
   double get_parShrink(){return parShrink;}
   double get_scale(){return scale;}

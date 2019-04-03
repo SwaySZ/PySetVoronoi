@@ -20,8 +20,37 @@
 #include "CellMachine.hpp"
 #include "CellFactory.hpp"
 #include<boost/python.hpp>
+#include <boost/foreach.hpp>//BOOST_FOREACH
 
 namespace py = boost::python;
+
+
+/*** c++-list to python-list */
+template<typename containedType>
+struct custom_vector_to_list{
+	static PyObject* convert(const std::vector<containedType>& v){
+		boost::python::list ret;
+    	BOOST_FOREACH(const containedType& e, v) ret.append(e);
+		return boost::python::incref(ret.ptr());
+	}
+};
+template<typename containedType>
+struct custom_vector_from_seq{
+	custom_vector_from_seq(){ boost::python::converter::registry::push_back(&convertible,&construct,boost::python::type_id<std::vector<containedType> >()); }
+	static void* convertible(PyObject* obj_ptr){
+		// the second condition is important, for some reason otherwise there were attempted conversions of Body to list which failed afterwards.
+		if(!PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr,"__len__")) return 0;
+		return obj_ptr;
+	}
+	static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data){
+		 void* storage=((boost::python::converter::rvalue_from_python_storage<std::vector<containedType> >*)(data))->storage.bytes;
+		 new (storage) std::vector<containedType>();
+		 std::vector<containedType>* v=(std::vector<containedType>*)(storage);
+		 int l=PySequence_Size(obj_ptr); if(l<0) abort(); /*std::cerr<<"l="<<l<<"; "<<typeid(containedType).name()<<std::endl;*/ v->reserve(l); for(int i=0; i<l; i++) { v->push_back(boost::python::extract<containedType>(PySequence_GetItem(obj_ptr,i))); }
+		 data->convertible=storage;
+	}
+};
+
 
 BOOST_PYTHON_MODULE(setvoronoi){
 
@@ -30,6 +59,13 @@ BOOST_PYTHON_MODULE(setvoronoi){
 	py::docstring_options docopt;
 	docopt.enable_all();
 	docopt.disable_cpp_signatures();
+
+
+  #define VECTOR_SEQ_CONV(Type) custom_vector_from_seq<Type>();  boost::python::to_python_converter<std::vector<Type>, custom_vector_to_list<Type> >();
+		VECTOR_SEQ_CONV(int);
+		//VECTOR_SEQ_CONV(bool);
+  #undef VECTOR_SEQ_CONV
+
 
   /*
   py::class_<parAttr>("parAttr","struct for particle attributes.")
@@ -43,6 +79,8 @@ BOOST_PYTHON_MODULE(setvoronoi){
     .add_property("posFile",&CellFactory::get_posFile,&CellFactory::set_posFile,"path of the file of particle positions.")
     .add_property("wallFile",&CellFactory::get_wallFile,&CellFactory::set_wallFile,"path of the file of wall positions.")
     .add_property("cellVTK",&CellFactory::get_cellVTK,&CellFactory::set_cellVTK,"whether to write vtk files for all cells.")
+    .add_property("cellPOV",&CellFactory::get_cellPOV,&CellFactory::set_cellPOV,"whether to write pov files for all cells.")
+    .add_property("visualized_ids",&CellFactory::get_visual_ids,&CellFactory::set_visual_ids,"for the cells with specified ids to be visualized.")
     .add_property("scale",&CellFactory::get_scale,&CellFactory::set_scale,"")
     .add_property("boxScale",&CellFactory::get_boxScale,&CellFactory::set_boxScale,"")
     .add_property("parShrink",&CellFactory::get_parShrink,&CellFactory::set_parShrink,"shrink a particle by a small gap (parShrink) during generating its point cloud.")

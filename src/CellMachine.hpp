@@ -44,7 +44,7 @@ private:
   double xmin,xmax,ymin,ymax,zmin,zmax;//box size
   double wall_xmin,wall_xmax,wall_ymin,wall_ymax,wall_zmin,wall_zmax;//the global wall size
   bool xpbc, ypbc,zpbc;
-	bool savereduced, removeduplicate, withboundary, savevtk, cellVTK, savepov, savepoly;
+	bool savereduced, removeduplicate, withboundary, savevtk, cellVTK, cellPOV,savepov, savepoly;
 	voro::pre_container *pcon;//container
   unsigned long long pid;//point id
   //std::map < unsigned long long, int> labelidmap;//no need to use map, just vector is ok
@@ -91,6 +91,8 @@ public:
   void set_boxScale(double sc){boxScale = sc;}
   void set_cellVTK(bool cv){cellVTK=cv;}
   bool get_cellVTK(){return cellVTK;}
+  void set_cellPOV(bool cv){cellPOV=cv;}
+  bool get_cellPOV(){return cellPOV;}
   void set_wallFile(std::string pf){wallFile = pf;}
   std::string get_wallFile(){return wallFile;}
 };

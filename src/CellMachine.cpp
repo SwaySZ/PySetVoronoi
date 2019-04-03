@@ -58,6 +58,7 @@ CellMachine::CellMachine(std::string input_folder,std::string output_folder){
   withboundary = false;
   savevtk = false;
   cellVTK = false;
+  cellPOV = false;
   savepov = false;
   savepoly = false;
   delta = 0.1e-3;//
@@ -327,15 +328,15 @@ void CellMachine::writeGlobal(){
               << " " <<cellNormalAreaTensor[3]<< " " <<cellNormalAreaTensor[4]<< " " <<cellNormalAreaTensor[5]
 							<< std::endl;
       */
-      deformationF /= cellSurfaceArea;
+      //deformationF /= cellSurfaceArea;
       for(int i=0;i<6;i++){cellNormalAreaTensor[i] /= cellSurfaceArea;}
       fp <<  cid<<" "<<std::scientific << cellVolume/pow(scale,3) << " " << cellSurfaceArea/pow(scale,2)
 							<< " " <<cellNormalAreaTensor[0]<< " " <<cellNormalAreaTensor[1]<< " " <<cellNormalAreaTensor[2]
               << " " <<cellNormalAreaTensor[3]<< " " <<cellNormalAreaTensor[4]<< " " <<cellNormalAreaTensor[5]
               //deformationF
-              << " " <<deformationF(0,0)<< " " <<deformationF(0,1)<< " " <<deformationF(0,2)
-              << " " <<deformationF(1,0)<< " " <<deformationF(1,1)<< " " <<deformationF(1,2)
-              << " " <<deformationF(2,0)<< " " <<deformationF(2,1)<< " " <<deformationF(2,2)
+              //<< " " <<deformationF(0,0)<< " " <<deformationF(0,1)<< " " <<deformationF(0,2)
+              //<< " " <<deformationF(1,0)<< " " <<deformationF(1,1)<< " " <<deformationF(1,2)
+              //<< " " <<deformationF(2,0)<< " " <<deformationF(2,1)<< " " <<deformationF(2,2)
 							<< std::endl;
 
 			fp.close();
@@ -492,7 +493,7 @@ void CellMachine::processing(){
 													positionlist.push_back(z);
 											}
 											 //we only add faces belonging to the current particle
-                      if(cellVTK){//FIXME:should be another flag.
+                      if(cellVTK||cellPOV){//FIXME:should be another flag.
                         pw->addface(positionlist, l);
                       }
 											//#endif
@@ -544,13 +545,14 @@ void CellMachine::processing(){
                           x_cell += Vector3r(center_x,center_y,center_z)*area_tmp2;
 											}
 											cellSurfaceArea += 0.5*area;
+                      /*
                       x_cell /= 3.0*area;
                       x_cell -= Vector3r(px,py,pz);
                       Vector3r v1 = x_cell.normalized();
                       Vector3r v2 = x_par.normalized();
                       deformationF += 0.5*area*x_cell.norm()/x_par.norm()*v1*v2.transpose();
 											//caculate the unit normal vector of the facet
-
+                      */
 									}
 							}
 
