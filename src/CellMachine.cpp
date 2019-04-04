@@ -398,7 +398,7 @@ void CellMachine::writeLocal(polywriter *pw){
 		//write vtk files of individual cells
 		if(cellVTK)
 		{
-      pw->saveOnePolyVTKnew(out_folder+"/"+std::to_string(cid)+".vtk", cid);
+      pw->saveOnePolyVTKnew(out_folder+"/"+std::to_string(cid)+".vtk", cid,scale);
 		}
 
 		//write pov file

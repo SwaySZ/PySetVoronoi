@@ -280,7 +280,7 @@ public:
 
     };
 
-    void saveOnePolyVTKnew(std::string filename, unsigned int targetCellID)
+    void saveOnePolyVTKnew(std::string filename, unsigned int targetCellID,double scale)
     {
 //        std::cout << "writing Polydata into a VTK file" << std::endl;
         std::ofstream f;
@@ -345,7 +345,7 @@ public:
                 it != vtkPoints.end();
                 ++it)
         {
-           f <<  std::setprecision(12) << it->x << " "<< it-> y << " " << it->z<< std::endl;
+           f <<  std::setprecision(12) << it->x/scale << " "<< it-> y/scale << " " << it->z/scale<< std::endl;
         }
         //polygon
         f << "POLYGONS " << face_num <<" "<<enterty_num<< std::endl;
@@ -355,7 +355,7 @@ public:
     f.close();
 
     };
-	void outputCellVTK(std::string filename,std::string outfileprefix)
+	void outputCellVTK(std::string filename,std::string outfileprefix,double scale)
 	{
 		std::ifstream infile;
 		infile.open(filename.c_str(), std::ifstream::in);
@@ -392,7 +392,7 @@ public:
 		std::string suffix(".vtk");
 		for(auto id = targetCellIDs.begin(); id != targetCellIDs.end(); ++id)
 		{
-			saveOnePolyVTKnew(outfileprefix+std::to_string(*id)+suffix, *id);
+			saveOnePolyVTKnew(outfileprefix+std::to_string(*id)+suffix, *id,scale);
 		}
 	}
   void saveOnePolyPOVnew(std::string filename, unsigned int targetCellID)
