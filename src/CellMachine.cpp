@@ -25,6 +25,7 @@ void CellMachine::initial(){
   rr = 0.01;
   cellVolume = 0.0;
   cellSurfaceArea = 0.0;
+  verbose = 7;//output all info
   for(int i=0;i<6;i++) cellNormalTensor[i]=0.0;
   for(int i=0;i<6;i++) cellNormalAreaTensor[i]=0.0;
   deformationF = Matrix3r::Zero();
@@ -287,7 +288,7 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   if(ret){cellVTK = true;}else{cellVTK=false;}
   */
   //define the box size by considering the global wall
-  std::cout<<"scale="<<scale<<" boxScale="<<boxScale<<std::endl;
+  if(verbose&4) std::cout<<"scale="<<scale<<" boxScale="<<boxScale<<std::endl;
   xmin = std::max(pAttr.centerx - pAttr.xrange*boxScale, wall_xmin);
   xmax = std::min(pAttr.centerx + pAttr.xrange*boxScale, wall_xmax);
   ymin = std::max(pAttr.centery - pAttr.yrange*boxScale, wall_ymin);
@@ -307,7 +308,7 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   //std::cout<<"con="<<con<<std::endl;
   //con = con_tmp;
   std::vector<int> surroundedID = pAttr.surroundedID;
-	std::cout << "currentparticleID: "<<cid<<"    surroundedID size: "<<surroundedID.size()<<std::endl;
+	if(verbose&1) std::cout << "currentparticleID: "<<cid<<"    surroundedID size: "<<surroundedID.size()<<std::endl;
   readParticle(in_folder + "/"+std::to_string(cid)+".dat", false, cid);//read the particle itself
   //read the other surrounding particles
   for(std::vector<int>::iterator it = surroundedID.begin();it!=surroundedID.end();it++){
@@ -335,7 +336,7 @@ void CellMachine::pushPoints(particleAttr& pAttr){
  pp = NULL;
  */
   pcon->guess_optimal(nx,ny,nz);
-  std::cout<<"nx="<<nx<<" ny="<<ny<<" nz="<<nz<<std::endl;
+  if(verbose&4) std::cout<<"nx="<<nx<<" ny="<<ny<<" nz="<<nz<<std::endl;
 }
 void CellMachine::writeGlobal(){
 			std::ofstream fp;
@@ -375,7 +376,7 @@ void CellMachine::writeGlobal(){
 			fp.close();
 }
 void CellMachine::writeLocal(polywriter *pw){
-	std::cout<<"writing cell data ..."<<std::endl;
+	if(verbose&2) std::cout<<"writing cell data ..."<<std::endl;
   	// save point pattern output
 		/*if(savereduced)
 		{
@@ -438,7 +439,7 @@ void CellMachine::processing(){
 		 // counter for process output
 		 double outputSteps = 100;
 		 double tenpercentSteps = 10/outputSteps*static_cast<double>(numberofpoints);
-		 std::cout << "merge voronoi cells of "<< numberofpoints<<" points..."<<std::endl;
+		 if(verbose&2) std::cout << "merge voronoi cells of "<< numberofpoints<<" points..."<<std::endl;
 		 double target = tenpercentSteps;
 		 if(cla.start())
 		 {
@@ -452,7 +453,7 @@ void CellMachine::processing(){
 							if ( status >= target)
 							{
 									target += tenpercentSteps;
-									std::cout << static_cast<int>(static_cast<double>(status)/static_cast<double>(numberofpoints)*outputSteps) << " \%\t" << std::flush;
+									if(verbose&4) std::cout << static_cast<int>(static_cast<double>(status)/static_cast<double>(numberofpoints)*outputSteps) << " \%\t" << std::flush;
 							}
 							//std::cout << "computed"  << std::endl;
 							double xc = 0;

@@ -81,6 +81,7 @@ BOOST_PYTHON_MODULE(setvoronoi){
     .add_property("visualized_ids",&CellFactory::get_visual_ids,&CellFactory::set_visual_ids,"for the cells with specified ids to be visualized.")
     .add_property("scale",&CellFactory::get_scale,&CellFactory::set_scale,"")
     .add_property("boxScale",&CellFactory::get_boxScale,&CellFactory::set_boxScale,"")
+    .add_property("verbose",&CellFactory::get_verbose,&CellFactory::set_verbose,"")
     .add_property("parShrink",&CellFactory::get_parShrink,&CellFactory::set_parShrink,"shrink a particle by a small gap (parShrink) during generating its point cloud.")
     .add_property("threadNum",&CellFactory::get_threadNum,&CellFactory::set_threadNum,"the thread number for openMP parallization.")
     .def("processing",&CellFactory::processing,"Processing tessellation.")

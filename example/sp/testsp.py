@@ -9,15 +9,17 @@ mycf.outfolder = "./output"
 mycf.posFile = "./Particles.dat"
 mycf.wallFile = "./Walls.dat"
 mycf.cellVTK = True
+mycf.cellPOV = True
 mycf.scale = 1000
 mycf.boxScale = 2.0
 mycf.parShrink = 0.1e-3
 mycf.threadNum = 2
+mycf.visualized_ids = [1,2]
 #you can execute it step by step
 mycf.genPointClouds(w_slices=30,h_slices=20)#here you can put your raw data
 mycf.neighborSearch()
-mycf.processing()#processing all particles
+#mycf.processing()#processing all particles
 pid = 0
-#mycf.processingOne(pid)#processing only one particle with id of pid
+mycf.processingOne(pid)#processing only one particle with id of pid
 #or you can conduct an automatic work flow
 #mycf.autoWorkFlow()

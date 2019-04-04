@@ -64,6 +64,7 @@ private:
   double cellNormalTensor[6];//six components of normalTensor(1-6)
   double cellNormalAreaTensor[6];//six components of normalAreaTensor(1-6)
   Matrix3r deformationF;
+  unsigned int verbose;//output info,0 none, 1 major info,2 all info.
 public:
 	CellMachine(std::string input_folder,std::string output_folder);
   CellMachine();
@@ -93,6 +94,8 @@ public:
   bool get_cellVTK(){return cellVTK;}
   void set_cellPOV(bool cv){cellPOV=cv;}
   bool get_cellPOV(){return cellPOV;}
+  unsigned int get_verbose(){return verbose;}
+  void set_verbose(unsigned int v){verbose = v;}
   void set_wallFile(std::string pf){wallFile = pf;}
   std::string get_wallFile(){return wallFile;}
 };

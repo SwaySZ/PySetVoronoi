@@ -45,6 +45,7 @@ private:
   //double h_slices;
   bool cellVTK;//output cells' vtk files
   bool cellPOV;
+  unsigned int verbose;//mask:0,1,2,4: output info,0 none, 1 major info,7 all info.
   std::vector<int> visualized_ids;//id list for particle cells needed visualizing via vtk or pov.
   //configuration
   double searchRadius;//neighbour lists would be built within a sphere with a radius of seachRadius
@@ -81,6 +82,8 @@ public:
   double get_parShrink(){return parShrink;}
   double get_scale(){return scale;}
   void set_scale(double sc){scale = sc;}
+  unsigned int get_verbose(){return verbose;}
+  void set_verbose(unsigned int v){verbose = v;}
   double get_boxScale(){return boxScale;}
   void set_boxScale(double sc){boxScale = sc;}
   unsigned int get_threadNum(){return threadNum;}

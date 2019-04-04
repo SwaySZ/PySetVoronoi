@@ -33,6 +33,7 @@ CellFactory::CellFactory(){
   parShrink = 0.01e-3;
   scale = 1000.0;
   boxScale = 2.0;
+  verbose = 7;//output all info
   //w_slices = 20;
   //h_slices = 20;
   cellVTK = false;
@@ -139,6 +140,7 @@ void CellFactory::processing(void){
         CM.set_cellPOV(cellPOV);
       }
       CM.set_scale(scale);
+      CM.set_verbose(verbose);
       CM.set_boxScale(boxScale);
       CM.set_wallFile(wallFile);
       //loading point clouds from local files
@@ -191,6 +193,7 @@ void CellFactory::processingOne(unsigned int pid){
       CM.set_cellPOV(cellPOV);
     }
     CM.set_scale(scale);
+    CM.set_verbose(verbose);
     CM.set_boxScale(boxScale);
     CM.set_wallFile(wallFile);
     //loading point clouds from local files
