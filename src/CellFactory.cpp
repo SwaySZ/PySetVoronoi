@@ -249,7 +249,26 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
           double a=0.0,b=0.0,phi0,phi1;
           double hStep=M_PI/(h-1);
           double wStep=2*M_PI/w;
+          Quaternionr Orisp;
+          //random orientation
+          double heading = double(rand())/RAND_MAX*2.0*M_PI;//rotate around z
+          double attitude = double(rand())/RAND_MAX*2.0*M_PI; //y
+          double bank = double(rand())/RAND_MAX*2.0*M_PI; //y
+          double c1 = cos(heading/2);
+          double s1 = sin(heading/2);
+          double c2 = cos(attitude/2);
+          double s2 = sin(attitude/2);
+          double c3 = cos(bank/2);
+          double s3 = sin(bank/2);
+          double c1c2 = c1*c2;
+          double s1s2 = s1*s2;
 
+          Orisp.w() =c1c2*c3 - s1s2*s3;
+          Orisp.x() =c1c2*s3 + s1s2*c3;
+          Orisp.y() =s1*c2*c3 + c1*s2*s3;
+          Orisp.z() =c1*s2*c3 - s1*c2*s3;
+
+          Matrix3r rot = Orisp.toRotationMatrix();
           Vector3r p,n;
   				std::ofstream fp;
           double shrinkR = rx1 - scaledist;
@@ -268,10 +287,11 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
 
             //get surface point
           	double xyz[3];
-
-          	xyz[0] = shrinkR*cos(phi0)*cos(phi1) + Position[0];
-          	xyz[1] = shrinkR*sin(phi0)*cos(phi1) + Position[1];
-          	xyz[2] = shrinkR*sin(phi1) + Position[2];
+            Vector3r p = shrinkR*Vector3r(cos(phi0)*cos(phi1),sin(phi0)*cos(phi1),sin(phi1));
+            p = rot*p;
+          	xyz[0] = p[0] + Position[0];
+          	xyz[1] = p[1] + Position[1];
+          	xyz[2] = p[2] + Position[2];
 
           	//p = Position + Vector3r(x,y,z);
 
@@ -290,9 +310,10 @@ bool CellFactory::pointCloud_Superquadric(unsigned int id, std::string outfile, 
 
             //get surface point
             double xyz[3];
-            xyz[0] = Position[0];
-            xyz[1] = Position[1];
-            xyz[2] = Position[2] + shrinkR*sin(phi1);
+            Vector3r p = rot*Vector3r(0,0,shrinkR*sin(phi1));
+            xyz[0] = p[0] + Position[0];
+            xyz[1] = p[1] + Position[1];
+            xyz[2] = p[2] + Position[2];
             //p = Position + Vector3r(x,y,z);
             //pp.addpoint(0,p(0),p(1),p(2));
             //if(id==0) fp3 <<std::scientific<< p(0)<<"\t" << p(1)<<"\t" << p(2) <<std::endl;
