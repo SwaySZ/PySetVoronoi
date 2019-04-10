@@ -483,8 +483,8 @@ void CellMachine::processing(){
 									int n = w[k];   // ID of neighbor cell
                   //std::cout<<"n="<<n<<"size="<<labelidmap.size()<<std::endl;
                   //not sure why n could be negative
-                  if(n<0) continue;
-									if (labelidmap[n] == l)
+                  //if(n<0) continue;//wall?
+									if (n >=0 && labelidmap[n] == l)
 									{
 											// discard this neighbour/face, since they have the same id
 											// std::cout << "discarding face " << l << " " << labelidmap[n] << std::endl;
