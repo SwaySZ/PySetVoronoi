@@ -13,6 +13,9 @@ PYTHON_INC=-I/usr/include/python2.7
 MAIN = src/SetVoronoi
 
 
+mkdir -p $(obj)
+mkdir -p $(bin)
+
 all: obj/setvoronoi.o LINK
 
 obj/mathbase.o: src/mathbase.cpp
@@ -40,4 +43,4 @@ LINK: obj/setvoronoi.o obj/cellfactory.o obj/voro.o obj/pointpattern.o obj/cellm
 
 clean:
 	rm obj/*
-	rm bin/pomelo
+	rm bin/*
