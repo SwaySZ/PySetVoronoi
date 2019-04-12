@@ -69,10 +69,8 @@ bool CellFactory::isInVisualIds(int id){
   return flag;
 }
 void CellFactory::genPointClouds(double w_slices=20,double h_slices = 20){
-  std::vector<particleparameterset> setlist;
-//judge whether the file can be open or not
-  fileloader loader;
-  bool flag = loader.read(posFile,setlist);
+  std::vector<std::vector<double> > setlist;
+  bool flag = read(setlist);
   if (!flag){std::cerr<<"Error: the file of particle positons has not been loaded correctly!"<<std::endl;}//if the current posfile can not be found, then skipt it.
   unsigned int ids = 0;
   //preprocessing data
@@ -83,12 +81,12 @@ void CellFactory::genPointClouds(double w_slices=20,double h_slices = 20){
   for(auto it = setlist.begin(); it != setlist.end(); ++it )
   {
     // read one particle from the position file
-    particleparameterset set = (*it);
+    std::vector<double> set = (*it);
     double area=0,volume=0;
     std::string outfile = in_folder + "/"+std::to_string(ids)+".dat";//store point clouds of particles
     particleAttr pa;
     bool ret;
-    ret = pointCloud_Superquadric(ids, outfile, parShrink,set.parameter,w_slices,h_slices,area,volume,pa);
+    ret = pointCloud_Superquadric(ids, outfile, parShrink,set,w_slices,h_slices,area,volume,pa);
     if(ret){
       parAttrlist.push_back(pa);
       fp1 << ids << "\t"<<volume<<"\t" << area << std::endl;
@@ -99,6 +97,85 @@ void CellFactory::genPointClouds(double w_slices=20,double h_slices = 20){
   }
   std::cout << "point cloud created!" << std::endl;
 }
+
+bool CellFactory::read( std::vector<std::vector<double> >& set)
+{
+    std::ifstream infile;
+    infile.open(posFile.data(),std::ifstream::in);
+    if (infile.fail())
+    {
+        std::cout << "Cannot load file " << posFile << std::endl;
+        return false;
+    }
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+    cSplitString line("");
+    unsigned int linesloaded = 0;
+    //std::getline(infile, line);
+    while (std::getline(infile, line))
+    {
+        if(line.find("#")!=std::string::npos) continue; // ignore comment lines
+
+        std::vector<std::string> currentLine = line.split('\t');//changed by Sway
+
+        std::vector<double> p;
+        for(auto it = currentLine.begin();it != currentLine.end(); ++it){
+        	double d = atof((*it).c_str());
+        	p.push_back(d);
+        }
+
+        linesloaded++;
+        set.push_back(p);
+
+    }
+    std::cout << "Lines loaded: " << linesloaded << std::endl << std::endl;
+
+    infile.close();
+    return true;
+}
+
+
+void CellFactory::readRawParticle(std::string filename, pointpattern& pp, unsigned int particleid)
+{
+    std::ifstream infile;
+    infile.open(filename.data(),std::ifstream::in);
+    if (infile.fail())
+    {
+        std::cout << "Cannot load file " << filename << std::endl;
+        return;
+    }
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+    cSplitString line("");
+    unsigned int linesloaded = 0;
+    std::getline(infile, line);
+    while (std::getline(infile, line))
+    {
+        if(line.find("#")!=std::string::npos) continue; // ignore comment lines
+
+        std::vector<std::string> xyzstring = line.split('\t');//
+        std::vector<double> xyz;
+        //xyz point
+        for (int i =0;i<xyzstring.size();i++){
+        	double d = atof(xyzstring.at(i).c_str());
+        	xyz.push_back(d);
+        }
+
+        //check the legality of xyz data
+        if(3 > xyz.size())
+        {
+            std::cout << "Warning!! The data at Line " << linesloaded <<" in the dataset has wrong format. I regected it for robust running."<< std::endl << std::endl;
+        }else
+        {
+            pp.addpoint(particleid,xyz[0],xyz[1],xyz[2]);
+        }
+        linesloaded++;
+
+
+    }
+    std::cout << "Lines loaded: " << linesloaded << std::endl << std::endl;
+
+    infile.close();
+}
+
 
 void CellFactory::neighborSearch(void){
   //#ifdef CF_OPENMP

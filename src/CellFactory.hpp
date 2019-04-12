@@ -23,7 +23,7 @@
 #include "CellMachine.hpp"
 #include "pointpattern.hpp"
 #include "duplicationremover.hpp"
-#include "particleparameterset.hpp"
+//#include "particleparameterset.hpp"
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -54,6 +54,8 @@ public:
   CellFactory();
   ~CellFactory(){};
   void genPointClouds(double w_slices,double h_slices);
+  bool read(std::vector<std::vector<double> >& set);//read particle geometric data
+  void readRawParticle(std::string filename, pointpattern& pp, unsigned int id);//xyz file read
   void neighborSearch(void);
   void processing(void);
   void processingOne(unsigned int num);

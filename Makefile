@@ -20,9 +20,6 @@ obj/mathbase.o: src/mathbase.cpp
 obj/voro.o: lib/voro++/src/voro++.*
 	$(CXX) -c  -o  obj/voro.o lib/voro++/src/voro++.cc
 
-obj/fileloader.o: src/fileloader.*
-	$(CXX) -c -o obj/fileloader.o src/fileloader.cpp
-
 obj/pointpattern.o: src/pointpattern.*
 	$(CXX) -c -o obj/pointpattern.o src/pointpattern.cpp
 obj/cellmachine.o: src/CellMachine.*
@@ -33,8 +30,8 @@ obj/cellfactory.o: src/CellFactory.cpp
 	$(CXX)  -c  $(E_INC) $(VORO_INC) $(BOOST_INC) -o obj/cellfactory.o src/CellFactory.cpp
 obj/setvoronoi.o: src/SetVoronoi.cpp
 	$(CXX)  -c  $(E_INC) $(PYTHON_INC) $(BOOST_INC) $(VORO_INC) -o obj/setvoronoi.o src/SetVoronoi.cpp
-LINK: obj/setvoronoi.o obj/cellfactory.o obj/voro.o obj/fileloader.o obj/pointpattern.o obj/cellmachine.o obj/superquadric.o obj/mathbase.o
-	$(CXX) obj/setvoronoi.o obj/cellfactory.o obj/voro.o obj/fileloader.o obj/pointpattern.o obj/cellmachine.o obj/superquadric.o obj/mathbase.o -o bin/setvoronoi.so -shared `pkg-config python --cflags` $(BOOST_LIB) -lboost_python27 -lboost_filesystem -lm -ldl  -lpthread
+LINK: obj/setvoronoi.o obj/cellfactory.o obj/voro.o obj/pointpattern.o obj/cellmachine.o obj/superquadric.o obj/mathbase.o
+	$(CXX) obj/setvoronoi.o obj/cellfactory.o obj/voro.o obj/pointpattern.o obj/cellmachine.o obj/superquadric.o obj/mathbase.o -o bin/setvoronoi.so -shared `pkg-config python --cflags` $(BOOST_LIB) -lboost_python27 -lboost_filesystem -lm -ldl  -lpthread
 
 
 
