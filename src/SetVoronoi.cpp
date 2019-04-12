@@ -58,7 +58,7 @@ BOOST_PYTHON_MODULE(setvoronoi){
 	docopt.enable_all();
 	docopt.disable_cpp_signatures();
 
-
+  //list and vector exchange between cpp and Python
   #define VECTOR_SEQ_CONV(Type) custom_vector_from_seq<Type>();  boost::python::to_python_converter<std::vector<Type>, custom_vector_to_list<Type> >();
 		VECTOR_SEQ_CONV(int);
 		//VECTOR_SEQ_CONV(bool);

@@ -1,4 +1,5 @@
 bin/*
+lib/*
 obj/*
 example/sphere/output
 *.o
