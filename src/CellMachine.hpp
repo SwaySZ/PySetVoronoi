@@ -62,6 +62,7 @@ private:
   double cellSurfaceArea;
   double cellNormalTensor[6];//six components of normalTensor(1-6)
   double cellNormalAreaTensor[6];//six components of normalAreaTensor(1-6)
+  Matrix3r cellVolumeTensor;//r_i n_j dA
   Matrix3r deformationF;
   unsigned int verbose;//output info,0 none, 1 major info,2 all info.
 public:

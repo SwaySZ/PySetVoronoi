@@ -28,6 +28,7 @@ void CellMachine::initial(){
   verbose = 7;//output all info
   for(int i=0;i<6;i++) cellNormalTensor[i]=0.0;
   for(int i=0;i<6;i++) cellNormalAreaTensor[i]=0.0;
+  cellVolumeTensor = Matrix3r::Zero();
   deformationF = Matrix3r::Zero();
   labelidmap.clear();
 }
@@ -364,6 +365,7 @@ void CellMachine::writeGlobal(){
       */
       //deformationF /= cellSurfaceArea;
       for(int i=0;i<6;i++){cellNormalAreaTensor[i] /= cellSurfaceArea;}
+      cellVolumeTensor /= pow(scale,3);
       fp <<  cid<<" "<<std::scientific << cellVolume/pow(scale,3) << " " << cellSurfaceArea/pow(scale,2)
 							<< " " <<cellNormalAreaTensor[0]<< " " <<cellNormalAreaTensor[1]<< " " <<cellNormalAreaTensor[2]
               << " " <<cellNormalAreaTensor[3]<< " " <<cellNormalAreaTensor[4]<< " " <<cellNormalAreaTensor[5]
@@ -371,6 +373,9 @@ void CellMachine::writeGlobal(){
               //<< " " <<deformationF(0,0)<< " " <<deformationF(0,1)<< " " <<deformationF(0,2)
               //<< " " <<deformationF(1,0)<< " " <<deformationF(1,1)<< " " <<deformationF(1,2)
               //<< " " <<deformationF(2,0)<< " " <<deformationF(2,1)<< " " <<deformationF(2,2)
+              << " " <<cellVolumeTensor(0,0)<< " " <<cellVolumeTensor(0,1)<< " " <<cellVolumeTensor(0,2)
+              << " " <<cellVolumeTensor(1,0)<< " " <<cellVolumeTensor(1,1)<< " " <<cellVolumeTensor(1,2)
+              << " " <<cellVolumeTensor(2,0)<< " " <<cellVolumeTensor(2,1)<< " " <<cellVolumeTensor(2,2)
 							<< std::endl;
 
 			fp.close();
@@ -431,6 +436,8 @@ void CellMachine::processing(){
 		polywriter *pw = new polywriter();
     double epsilon = 1e-8*scale;
 		unsigned long long numberofpoints = labelidmap.size();
+    //output data for strain computation
+    std::map < unsigned int, std::vector<Vector3r> > allFacetCenterNormal;
 		// merge voronoi cells to set voronoi diagram
 		// loop over all voronoi cells
 		voro::c_loop_all cla(con);
@@ -476,6 +483,11 @@ void CellMachine::processing(){
               Vector3r x_par = Vector3r(xc-px, yc-py, zc-pz);//vector of the point on the particle
 							std::vector<int> w; // neighbors of faces
 							c.neighbors(w);
+              std::vector<Vector3r> facetCenterNormal;//
+              facetCenterNormal.clear();
+              double subCellArea(0.0);
+              Vector3r cellNormalArea(0.,0.,0.);
+              Vector3r cellCenter(0.,0.,0.);
 							// for this cell, loop over all faces and get the corresponding neighbors
 							for (unsigned int k = 0; k != w.size(); ++k)
 							{
@@ -535,6 +547,7 @@ void CellMachine::processing(){
 	                    //calculate surface area
 											double ux, uy, uz, vx,vy,vz, wx,wy,wz,area;
                       double center_x(0.0), center_y(0.0), center_z(0.0);
+                      Vector3r facetNormal(0.,0.,0.);//normal vector of the facet.
                       Vector3r x_cell = Vector3r::Zero();//vector of the center of a facet
 											area = 0.0;
 											for (unsigned int i=1;i < positionlist.size()/3-1;i++)
@@ -551,9 +564,10 @@ void CellMachine::processing(){
 													double area_tmp1 = wx*wx+wy*wy+wz*wz;//squarenorm of the vector (wx,wy,wz)
 													double area_tmp2 = sqrt(area_tmp1);//
 													//area += sqrt(wx*wx+wy*wy+wz*wz);
-													//if(i<2){//just get a normal vector of the first triangle
+													if(i<2){//just get a normal vector of the first triangle
 													//normalize the vector
-
+                            facetNormal = Vector3r(wx,wy,wz)/area_tmp2;
+                          }
 													//std::cout<<"l="<<l<<std::endl;
                           /*
 													cellNormalTensor[0] += wx*wx/area_tmp1;//n11
@@ -580,17 +594,31 @@ void CellMachine::processing(){
                           x_cell += Vector3r(center_x,center_y,center_z)*area_tmp2;
 											}
 											cellSurfaceArea += 0.5*area;
-                      /*
-                      x_cell /= 3.0*area;
+
+                      //subCellArea += area;
+                      x_cell /= 3.0*area;//center of the facet.
+
+                      //cellCenter += x_cell;
+                      //cellNormalArea += facetNormal*area;
+                      //facetCenterNormal.push_back(x_cell);
+                      //facetCenterNormal.push_back(facetNormal*area);
+
                       x_cell -= Vector3r(px,py,pz);
-                      Vector3r v1 = x_cell.normalized();
-                      Vector3r v2 = x_par.normalized();
-                      deformationF += 0.5*area*x_cell.norm()/x_par.norm()*v1*v2.transpose();
+                      if(area==0) continue;
+                      cellVolumeTensor += (area*x_cell)*facetNormal.transpose();
+                      //Vector3r v1 = x_cell.normalized();
+                      //Vector3r v2 = x_par.normalized();
+                      //deformationF += 0.5*area*x_cell.norm()/x_par.norm()*v1*v2.transpose();
 											//caculate the unit normal vector of the facet
-                      */
+
 									}
 							}
-
+              //
+              /*
+              facetCenterNormal.push_back(subCellArea==0?cellCenter:cellCenter/3.0/subCellArea);
+              facetCenterNormal.push_back(cellNormalArea);
+              allFacetCenterNormal.insert(std::make_pair(id, facetCenterNormal));
+              */
 					}
 			}
 			while (cla.inc());
@@ -601,4 +629,25 @@ void CellMachine::processing(){
   writeGlobal();
 	std::cout << std::endl;
 	con.clear();
+  /*
+  //write allFacetCenterNormal
+  std::ofstream fp3;
+  std::string outfile1 = out_folder+"/"+std::to_string(cid)+"FCN.dat";
+  fp3.open(outfile1.c_str(),std::ios::out);
+  fp3<<"#center(x,y,z), normalArea(nax,nay,naz)"<<std::endl;
+  // Iterate through all elements in std::map
+  std::map<unsigned int, std::vector<Vector3r> >::iterator it = allFacetCenterNormal.begin();
+  while(it != allFacetCenterNormal.end())
+  {
+    //fp3<<it->first<<"\t"<<it->second.size()/2<<"\t";
+    fp3<< std::scientific<<it->second[0][0]/scale <<"\t"<<it->second[0][1]/scale<<"\t"<<it->second[0][2]/scale<<"\t"
+       << it->second[1][0]/pow(scale,2) <<"\t"<<it->second[1][1]/pow(scale,2)<<"\t"<<it->second[1][2]/pow(scale,2)<<std::endl;
+    //for(auto fcn : it->second){
+    //  fp3<< fcn[0] <<"\t"<<fcn[1]<<"\t"<<fcn[2]<<"\t";
+    //}
+    //fp3<<std::endl;
+    it++;
+  }
+  fp3.close();
+  */
 }
