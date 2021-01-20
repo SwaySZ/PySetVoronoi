@@ -1,5 +1,5 @@
 import sys,os,os.path
-sys.path.insert(1, '/home/swayzhao/software/DEM/EPomelo2/bin')
+sys.path.insert(1, '../../install/lib')
 
 import setvoronoi as sv
 print sv.__doc__

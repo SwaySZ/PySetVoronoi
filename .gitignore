@@ -1,7 +1,14 @@
 bin/*
 lib/*
 obj/*
-example/sphere/output
+build
+install
+example/sp/input
+example/sp/output
+example/ell/input
+example/ell/output
+example/polysuper/input
+example/polysuper/output
 *.o
 *.a
 *~

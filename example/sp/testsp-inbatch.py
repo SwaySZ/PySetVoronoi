@@ -1,5 +1,5 @@
 import sys,os,os.path
-sys.path.insert(1, '/home/swayzhao/software/DEM/EPomelo2/bin')
+sys.path.insert(1, '../../install/lib')
 #os.environ['OMP_NUM_THREADS']=str(2)
 import setvoronoi as sv
 #print cf.__doc__

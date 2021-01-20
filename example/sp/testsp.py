@@ -1,5 +1,5 @@
 import sys,os,os.path
-sys.path.insert(1, '/home/swayzhao/software/DEM/EPomelo2/bin')
+sys.path.insert(1, '../../install/lib')
 #os.environ['OMP_NUM_THREADS']=str(2)
 import setvoronoi as sv
 #print cf.__doc__
@@ -14,7 +14,7 @@ mycf.scale = 1000
 mycf.boxScale = 2.0
 mycf.parShrink = 0.1e-3
 mycf.threadNum = 2
-mycf.visualized_ids = [1,2]
+mycf.visualized_ids = [0,1,2]
 #you can execute it step by step
 mycf.genPointClouds(w_slices=30,h_slices=20)#here you can put your raw data
 mycf.neighborSearch()
