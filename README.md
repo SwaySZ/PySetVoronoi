@@ -1,6 +1,6 @@
 ![](./doc/cover.png)
 # PySetVoronoi
-A Python interface for Set Voronoi Tessellation of poly-superellipsoids and general point clouds from irregular particles.
+A Python interface for Set Voronoi Tessellation of poly-superellipsoids and general point clouds from irregular particles, where the kenerl is written in C++.
 
 Shiwei Zhao (swzhao (at) scut.edu.cn)
 South China University of Technology
@@ -24,6 +24,15 @@ along with Pomelo.  If not, see <http://www.gnu.org/licenses/>.
 
 > **Note: The source codes of the thirdparty libraries (Eigen, Voro++, Pybind11) have been presented here, and their licenses are distributed with the source codes.**
 
+## Features
+
+- Voronoi tesselatio of particles with arbitrary shapes
+- Basic geometric info of individual cells
+- Common Minkowski tensors for cell shape
+- Support vtk and pov files for individual cells
+- Support parallel computation with OpenMP
+- Easy setting in Python
+
 ## Supported platforms
 
 - [x] Windows
@@ -38,7 +47,7 @@ sys.path.insert(1, '../../install/lib')
 #os.environ['OMP_NUM_THREADS']=str(2)
 import setvoronoi as sv
 #print cf.__doc__
-mycf = sv.CellFactory()
+mycf = sv.CellFactory() #establish a factory (class) to handle the computation
 mycf.infolder = "./input"
 mycf.outfolder = "./output"
 mycf.posFile = "./Particles.dat"
