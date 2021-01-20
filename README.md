@@ -20,7 +20,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Pomelo.  If not, see <http://www.gnu.org/licenses/>.
+along with the code.  If not, see <http://www.gnu.org/licenses/>.
 
 > **Note: The source codes of the thirdparty libraries (Eigen, Voro++, Pybind11) have been presented here, and their licenses are distributed with the source codes.**
 
