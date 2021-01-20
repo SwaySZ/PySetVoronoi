@@ -28,6 +28,9 @@
 #include <thread>
 #include <filesystem>
 
+#include <iterator>
+#include <regex>
+
 CellFactory::CellFactory(){
   searchRadius = 4.0;
   parShrink = 0.01e-3;
@@ -108,21 +111,23 @@ bool CellFactory::read( std::vector<std::vector<double> >& set)
         return false;
     }
 #pragma GCC diagnostic ignored "-Wwrite-strings"
-    cSplitString line("");
+    std::string line("");
     unsigned int linesloaded = 0;
     //std::getline(infile, line);
     while (std::getline(infile, line))
     {
         if(line.find("#")!=std::string::npos) continue; // ignore comment lines
 
-        std::vector<std::string> currentLine = line.split('\t');//changed by Sway
-
         std::vector<double> p;
-        for(auto it = currentLine.begin();it != currentLine.end(); ++it){
-        	double d = atof((*it).c_str());
-        	p.push_back(d);
-        }
 
+        const std::regex ws_re("\\t+"); // table
+        auto line_begin = std::sregex_token_iterator(line.begin(), line.end(), ws_re, -1);
+        auto line_end = std::sregex_token_iterator();
+        
+        for (auto it = line_begin; it != line_end; ++it ){
+            double d = atof((*it).str().c_str());
+            p.push_back(d);
+        }
         linesloaded++;
         set.push_back(p);
 
@@ -144,21 +149,23 @@ void CellFactory::readRawParticle(std::string filename, pointpattern& pp, unsign
         return;
     }
 #pragma GCC diagnostic ignored "-Wwrite-strings"
-    cSplitString line("");
+    std::string line("");
     unsigned int linesloaded = 0;
     std::getline(infile, line);
     while (std::getline(infile, line))
     {
         if(line.find("#")!=std::string::npos) continue; // ignore comment lines
 
-        std::vector<std::string> xyzstring = line.split('\t');//
         std::vector<double> xyz;
         //xyz point
-        for (int i =0;i<xyzstring.size();i++){
-        	double d = atof(xyzstring.at(i).c_str());
-        	xyz.push_back(d);
+        const std::regex ws_re("\\t+"); // table
+        auto line_begin = std::sregex_token_iterator(line.begin(), line.end(), ws_re, -1);
+        auto line_end = std::sregex_token_iterator();
+        
+        for (auto it = line_begin; it != line_end; ++it ){
+            double d = atof((*it).str().c_str());
+            xyz.push_back(d);
         }
-
         //check the legality of xyz data
         if(3 > xyz.size())
         {
@@ -238,7 +245,6 @@ void CellFactory::processing(void){
     infile.open(path.c_str(),std::ios::in);
     if (infile.fail()){std::cout << "Cannot load file "<< std::endl;continue;}
     #pragma GCC diagnostic ignored "-Wwrite-strings"
-    //cSplitString line("");
     std::string line("");
     std::getline(infile, line);
     outfile << line <<std::endl;;

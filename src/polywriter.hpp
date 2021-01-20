@@ -1,34 +1,16 @@
-/*
-Copyright 2016 Simon Weis and Philipp Schoenhoefer
-revised by Sway Zhao
 
-This file is part of Pomelo.
-
-Pomelo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Pomelo is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Pomelo.  If not, see <http://www.gnu.org/licenses/>.
-
-The development of Pomelo took place at the Friedrich-Alexander University of Erlangen and was funded by the German Research Foundation (DFG) Forschergruppe FOR1548 "Geometry and Physics of Spatial Random Systems" (GPSRS).
-*/
-#ifndef POLYWRITER_H_123456
-#define POLYWRITER_H_123456
+#ifndef __POLY_WRITER__
+#define __POLY_WRITER__
 
 #include <iomanip>
 #include <vector>
 #include <map>
 #include <cmath>
 
+#include <iterator>
+#include <regex>
+
 #include "duplicationremover.hpp"
-#include "csplitstring.hpp"
 
 class polywriter
 {
@@ -365,7 +347,7 @@ public:
 		    return;
 		}
 	#pragma GCC diagnostic ignored "-Wwrite-strings"
-		cSplitString line("");
+		std::string line("");
 		unsigned int linesloaded = 0;
 		//std::getline(infile, line);
 		std::cout<<"Warning!"<<std::endl;
@@ -373,16 +355,17 @@ public:
 		while (std::getline(infile, line))
 		{
 		    if(line.find("#")!=std::string::npos) continue; // ignore comment lines
-
-		    std::vector<std::string> xyzstring = line.split(' ');//
-		    //std::cout<<xyzstring[0]<<std::endl;
-
-		    //xyz point
-		    for (auto it = xyzstring.begin(); it != xyzstring.end(); ++it)
-		    {
-		        int d = std::stoi((*it));
+            //split
+            
+            const std::regex ws_re("\\s+"); // whitespace
+            auto line_begin = std::sregex_token_iterator(line.begin(), line.end(), ws_re, -1);
+            auto line_end = std::sregex_token_iterator();
+            
+            for (auto p = line_begin; p != line_end; ++p ){
+                int d = std::stoi((*p));
+                std::cout<<*p<<std::endl;
 		        targetCellIDs.push_back(d);
-		    }
+            }
 		    linesloaded++;
 
 		}

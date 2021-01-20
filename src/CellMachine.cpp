@@ -121,7 +121,7 @@ void CellMachine::readWall(std::string filename)
         return;
     }
 #pragma GCC diagnostic ignored "-Wwrite-strings"
-    cSplitString line("");
+    std::string line("");
     unsigned int linesloaded = 0;
     //std::getline(infile, line);
     //std::cout<<"Warning! The wallfile should include six lines in order with xmin,xmax,ymin,ymax,zmin,zmax. Each line has three components."<<std::endl;
@@ -129,16 +129,16 @@ void CellMachine::readWall(std::string filename)
     while (std::getline(infile, line))
     {
         if(line.find("#")!=std::string::npos) continue; // ignore comment lines
-
-        std::vector<std::string> xyzstring = line.split('\t');//
-        //std::cout<<xyzstring[0]<<std::endl;
         std::vector<double> xyz;
         //xyz point
-        for(unsigned int i =0;i<xyzstring.size();i++){
-        	double d = atof(xyzstring.at(i).c_str());
-        	xyz.push_back(d);
+        const std::regex ws_re("\\t+"); // table
+        auto line_begin = std::sregex_token_iterator(line.begin(), line.end(), ws_re, -1);
+        auto line_end = std::sregex_token_iterator();
+        
+        for (auto it = line_begin; it != line_end; ++it ){
+            double d = atof((*it).str().c_str());
+            xyz.push_back(d);
         }
-
         //check the legality of xyz data
         if(3 > xyz.size())
         {
@@ -187,59 +187,7 @@ void CellMachine::readParticle(std::string filename, bool flag, int particleId)
         std::cout << "Cannot load file " << filename << std::endl;
         return;
     }
-    /*
-    //read ascii files
-#pragma GCC diagnostic ignored "-Wwrite-strings"
-    cSplitString line("");
-    unsigned int linesloaded = 0;
-    std::getline(infile, line);
-    while (std::getline(infile, line))
-    {
-        if(line.find("#")!=std::string::npos) continue; // ignore comment lines
-
-        std::vector<std::string> xyzstring = line.split('\t');//
-        std::vector<double> xyz;
-        //xyz point
-        for (unsigned int i =0;i<xyzstring.size();i++){
-        	double d = atof(xyzstring.at(i).c_str());
-        	xyz.push_back(d);
-        }
-
-        //check the legality of xyz data
-        if(3 > xyz.size())
-        {
-            std::cout << "Warning!! The data at Line " << linesloaded <<" in the dataset has wrong format. I regected it for robust running."<< std::endl << std::endl;
-        }else
-        {
-            //pp.addpoint(particleid,);
-            //std::cout<<"hre"<<con<<std::endl;
-            if(flag){
-              if(isInBox(xyz[0],xyz[1],xyz[2])){
-                pcon->put(pid, xyz[0]*scale,xyz[1]*scale,xyz[2]*scale);
-                //pp->addpoint(particleId,xyz[0],xyz[1],xyz[2]);
-                labelidmap.push_back(particleId);
-                #ifdef DEBUG_CM
-                fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
-                #endif
-                ++pid;
-              }
-            }else{
-              pcon->put(pid, xyz[0]*scale,xyz[1]*scale,xyz[2]*scale);
-              //pp->addpoint(particleId,xyz[0],xyz[1],xyz[2]);
-              labelidmap.push_back(particleId);
-              #ifdef DEBUG_CM
-              fp2 << xyz[0]<<"\t" << xyz[1]<<"\t" << xyz[2] <<std::endl;
-              #endif
-              ++pid;
-            }
-
-        }
-        linesloaded++;
-
-
-    }
-    //std::cout << "Lines loaded: " << linesloaded << std::endl << std::endl;
-    */
+    
 
     //read binary files
     //test

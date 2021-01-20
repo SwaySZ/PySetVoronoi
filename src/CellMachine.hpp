@@ -30,7 +30,7 @@
  #include "pointpattern.hpp"
  #include "duplicationremover.hpp"
  #include "polywriter.hpp"
- #include "csplitstring.hpp"
+ 
  #include "parAttr.hpp"
  #include "mathbase.hpp"
 class CellMachine{//this class is designed to handle the computation of a single particle's cell.
