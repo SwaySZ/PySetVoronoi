@@ -22,6 +22,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Pomelo.  If not, see <http://www.gnu.org/licenses/>.
 
+> **Note: The source codes of the thirdparty libraries (Eigen, Voro++, Pybind11) have been presented here, and their licenses are distributed with the source codes.
+
 ## Supported platforms
 
 - [x] Windows
@@ -29,6 +31,7 @@ along with Pomelo.  If not, see <http://www.gnu.org/licenses/>.
 - [x] Mac
 
 ## Sample usage
+
 ```py
 import sys,os,os.path
 sys.path.insert(1, '../../install/lib')
@@ -76,11 +79,13 @@ make
 
 make install
 
-Note: By default, 'make install' will install the compiled libraries into the folder named 
+> **Note: By default, 'make install' will install the compiled libraries into the folder named 
 "install" next to 'build'.
 
 Then, you can run the examples in your terminal, e.g.,
+'''sh
 python3 testsp.py
+'''
 
 ## Cite this work
 
