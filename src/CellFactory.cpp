@@ -10,7 +10,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Shiwei Zhao (zhswee@gmail.com)
+ *         Author:  Shiwei Zhao (swzhao (at) scut.edu.cn)
  *   Organization: The Hong Kong University of Science and Technology
  *                 South China University of Technology
  *

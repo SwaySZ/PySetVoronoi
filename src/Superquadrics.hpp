@@ -13,7 +13,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  zhswee (zhswee@gmail.com)
+ *         Author:  zhswee (swzhao (at) scut.edu.cn)
  *   Organization: South China University of Technology
  *
  * =====================================================================================

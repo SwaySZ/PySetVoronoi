@@ -2,7 +2,7 @@
 # CellFactory
 A Python interface for Set Voronoi Tessellation (PySetVoronoi) of poly-superellipsoids and general point clouds from irregular particles.
 
-Shiwei Zhao (zhswee@gmail.com)
+Shiwei Zhao (swzhao (at) scut.edu.cn)
 South China University of Technology
 
 Copyright 2016-2021 Shiwei Zhao
