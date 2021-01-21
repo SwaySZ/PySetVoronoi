@@ -48,25 +48,25 @@ sys.path.insert(1, '../../install/lib')
 import setvoronoi as sv
 #print cf.__doc__
 mycf = sv.CellFactory() #establish a factory (class) to handle the computation
-mycf.infolder = "./input"
-mycf.outfolder = "./output"
-mycf.posFile = "./Particles.dat"
-mycf.wallFile = "./Walls.dat"
-mycf.cellVTK = True
-mycf.cellPOV = True
-mycf.scale = 1000
-mycf.boxScale = 2.0
-mycf.parShrink = 0.1e-3
-mycf.threadNum = 2
-mycf.visualized_ids = [0,1,2]
+mycf.infolder = "./input" #this folder contains point-cloud data for each particle (will be generated)
+mycf.outfolder = "./output" #this folder contains data after computation
+mycf.posFile = "./Particles.dat" #particle data with info such as position, orientation, etc
+mycf.wallFile = "./Walls.dat" #wall data with positions of each walll for a cubic container
+mycf.cellVTK = True #yield vtk files for cells
+mycf.cellPOV = True #yield pov files for cells
+mycf.scale = 1000 #the parameter used to scale up the data during computation (due to a bug in vtk)
+mycf.boxScale = 2.0 #the parameter used to scale up the AABB box of a given particle
+mycf.parShrink = 0.1e-3 #shrink particles inward to avoid contact particles (with intersection in DEM)
+mycf.threadNum = 2 #threads in OpenMP
+mycf.visualized_ids = [0,1,2] #id list of particle/cell that will be visualized by vtk/pov, empty for all.
 #you can execute it step by step
-mycf.genPointClouds(w_slices=30,h_slices=20)#here you can put your raw data
+mycf.genPointClouds(w_slices=30,h_slices=20)#point-cloud generation. here you can put your raw data
 mycf.neighborSearch()
 #mycf.processing()#processing all particles
-pid = 0
+pid = 0 #as a demonstrate, we calculate only a single particle with id = 0.
 mycf.processingOne(pid)#processing only one particle with id of pid
 #or you can conduct an automatic work flow
-#mycf.autoWorkFlow()
+#mycf.autoWorkFlow() #this line will execute all processes starting from point-cloud generation.
 ```
 
 ## Compile & Install
@@ -91,9 +91,9 @@ make install
 > **Note: By default, 'make install' will install the compiled libraries into the folder named "install" next to 'build'.**
 
 Then, you can run the examples in your terminal, e.g.,
-'''sh
+```sh
 python3 testsp.py
-'''
+```
 
 ## Cite this work
 
