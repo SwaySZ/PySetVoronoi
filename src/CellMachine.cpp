@@ -238,12 +238,22 @@ void CellMachine::pushPoints(particleAttr& pAttr){
   */
   //define the box size by considering the global wall
   if(verbose&4) std::cout<<"scale="<<scale<<" boxScale="<<boxScale<<std::endl;
-  xmin = std::max(pAttr.centerx - pAttr.xrange*boxScale, wall_xmin);
-  xmax = std::min(pAttr.centerx + pAttr.xrange*boxScale, wall_xmax);
-  ymin = std::max(pAttr.centery - pAttr.yrange*boxScale, wall_ymin);
-  ymax = std::min(pAttr.centery + pAttr.yrange*boxScale, wall_ymax);
-  zmin = std::max(pAttr.centerz - pAttr.zrange*boxScale, wall_zmin);
-  zmax = std::min(pAttr.centerz + pAttr.zrange*boxScale, wall_zmax);
+  
+	xmin = std::max(pAttr.centerx-(pAttr.centerx-pAttr.xmin)*boxScale,wall_xmin);
+	xmax = std::min(pAttr.centerx+(pAttr.xmax-pAttr.centerx)*boxScale,wall_xmax);
+
+	ymin = std::max(pAttr.centery-(pAttr.centery-pAttr.ymin)*boxScale,wall_ymin);
+	ymax = std::min(pAttr.centery+(pAttr.ymax-pAttr.centery)*boxScale,wall_ymax);
+
+	zmin = std::max(pAttr.centerz-(pAttr.centerz-pAttr.zmin)*boxScale,wall_zmin);
+	zmax = std::min(pAttr.centerz+(pAttr.zmax-pAttr.centerz)*boxScale,wall_zmax);
+  
+  //xmin = std::max(pAttr.centerx - pAttr.xrange*boxScale, wall_xmin);
+  //xmax = std::min(pAttr.centerx + pAttr.xrange*boxScale, wall_xmax);
+  //ymin = std::max(pAttr.centery - pAttr.yrange*boxScale, wall_ymin);
+  //ymax = std::min(pAttr.centery + pAttr.yrange*boxScale, wall_ymax);
+  //zmin = std::max(pAttr.centerz - pAttr.zrange*boxScale, wall_zmin);
+  //zmax = std::min(pAttr.centerz + pAttr.zrange*boxScale, wall_zmax);
   //create a voro container
   //std::cout<<"creating a container..."<<std::endl;
   //std::cout<<pAttr.centerx<<" "<<pAttr.centery<<" "<<pAttr.centerz<<std::endl;
