@@ -1,11 +1,7 @@
 ![](./doc/cover.png)
 # PySetVoronoi
+
 A Python interface for Set Voronoi Tessellation of poly-superellipsoids and general point clouds from irregular particles, where the kenerl is written in C++.
-
-Shiwei Zhao (swzhao (at) scut.edu.cn)
-South China University of Technology
-
-Copyright 2016-2021 Shiwei Zhao
 
 ## License
 
