@@ -14,14 +14,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build wheels
+   
     - name: Set up Python 
       uses: actions/setup-python@v2
       with:
         python-version: ${{matrix.python}}
 
     - name: Install cibuildwheel
-      run: python3 -m pip install cibuildwheel==1.10.0
+      run: python3 -m pip install cibuildwheel==1.6.3
 
     - name: Build wheel
       run: python3 -m cibuildwheel --output-dir wheelhouse
