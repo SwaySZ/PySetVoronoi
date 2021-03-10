@@ -19,8 +19,8 @@ jobs:
             cibw-arch: manylinux_x86_64
           # - runs-on: ubuntu-latest
           #   cibw-arch: manylinux_i686
-          # - runs-on: macos-latest
-          #   cibw-arch: macosx_x86_64
+          - runs-on: macos-latest
+            cibw-arch: macosx_x86_64
           # - runs-on: macos-latest
           #   cibw-arch: macosx_arm64
           # - runs-on: macos-latest
@@ -49,6 +49,10 @@ jobs:
     - name: Install cibuildwheel
       run: python -m pip install cibuildwheel==1.10.0 twine
 
+    - name: Install system dependencies- MacOS
+      run: |
+          brew install Homebrew/core/libomp
+      if: matrix.runs-on == 'macos-latest'
 
     - name: Configure cibuildwheel
       shell: bash
