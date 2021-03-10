@@ -3,6 +3,7 @@ lib/*
 obj/*
 build
 install
+dist
 example/sp/input
 example/sp/output
 example/ell/input
