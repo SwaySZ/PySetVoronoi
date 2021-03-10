@@ -102,9 +102,11 @@ jobs:
           ln -s /usr/local/Cellar/libomp/11.1.0/ /usr/local/opt/libomp
           ls  /usr/local/opt/libomp
       if: matrix.runs-on == 'macos-latest'
-      
+
     - name: Build
-      run: python3 setup.py bdist_wheel --universal  --outdir wheelhouse/
+      run: |
+          pip3 install wheel
+          python3 setup.py bdist_wheel --universal  --outdir wheelhouse/
     # - name: Install pypa/build
     #   run: python3 -m pip install build --user
 
