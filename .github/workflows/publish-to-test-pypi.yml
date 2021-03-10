@@ -17,23 +17,16 @@ jobs:
    
     - name: Set up Python 
       uses: actions/setup-python@v2
-      with:
-        python-version: ${{matrix.python}}
+      #with:
+      #  python-version: ${{matrix.python}}
 
     - name: Install cibuildwheel
-      run: python3 -m pip install cibuildwheel==1.6.3
+      run: python -m pip install cibuildwheel==1.10.0
 
     - name: Build wheel
-      run: python3 -m cibuildwheel --output-dir wheelhouse
+      run: python -m cibuildwheel --output-dir wheelhouse
 
-    - name: Show files
-      run: ls -lh wheelhouse
-      shell: bash
 
-    - name: Verify clean directory
-      run: git diff --exit-code
-      shell: bash
-            
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
