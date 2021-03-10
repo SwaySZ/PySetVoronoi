@@ -14,15 +14,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{matrix.python}}
     - name: Build wheels
       uses: joerick/cibuildwheel@v1.10.0
       # to supply options, put them in 'env', like:
       # env:
       #   CIBW_SOME_OPTION: value
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.8
+      with:
+        cmake-version: '3.12.x'
+    - name: Set up Python 
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{matrix.python}}
     # - name: Create Build Environment
     #   run: cmake -E make_directory ${{github.workspace}}/build
 
