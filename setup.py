@@ -36,7 +36,6 @@ class CMakeBuild(build_ext):
 
         if platform.system() == "Darwin":
             cmake_args.append("-DOpenMP_CXX_FLAGS='-Xpreprocessor -fopenmp'")
-            print("hahah ")
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
