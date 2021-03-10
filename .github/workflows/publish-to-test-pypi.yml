@@ -2,7 +2,7 @@ name: Publish PySetVoronoi to PyPI and TestPyPI
 
 on: 
   push:
-      branches:[ci]
+      branches: [ci]
 
 jobs:
   build-n-publish:
