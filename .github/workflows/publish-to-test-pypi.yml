@@ -100,6 +100,7 @@ jobs:
       run: |
           brew install Homebrew/core/libomp
           ln -s /usr/local/Cellar/libomp/11.1.0/ /usr/local/opt/libomp
+          ls  /usr/local/opt/libomp
       if: matrix.runs-on == 'macos-latest'
 
     - name: Install pypa/build
