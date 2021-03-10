@@ -49,10 +49,10 @@ jobs:
     - name: Install cibuildwheel
       run: python -m pip install cibuildwheel==1.10.0 twine
 
-    - name: Install system dependencies- MacOS
-      run: |
-          brew install Homebrew/core/libomp
-      if: matrix.runs-on == 'macos-latest'
+    # - name: Install system dependencies- MacOS
+    #   run: |
+    #       brew install Homebrew/core/libomp
+    #   if: matrix.runs-on == 'macos-latest'
 
     - name: Configure cibuildwheel
       shell: bash
@@ -66,6 +66,7 @@ jobs:
         echo "CIBW_ENVIRONMENT_MACOS=$CIBW_ENVIRONMENT_COMMON MACOSX_DEPLOYMENT_TARGET=10.9 CMAKE_OSX_ARCHITECTURES=\"$CMAKE_OSX_ARCHITECTURES\"" >> $GITHUB_ENV
         echo "CIBW_BEFORE_ALL_LINUX=pip install cmake && ln -s \$(which cmake) /usr/local/bin/cmake " >> $GITHUB_ENV
         echo "CIBW_BEFORE_ALL_WINDOWS=$CIBW_BEFORE_ALL_COMMON --config Release" >> $GITHUB_ENV
+        echo "CIBW_BEFORE_ALL_MACOS=brew install Homebrew/core/libomp " >> $GITHUB_ENV
 
 
     - name: Build wheel
