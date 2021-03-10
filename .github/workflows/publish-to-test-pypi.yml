@@ -66,7 +66,7 @@ jobs:
         echo "CIBW_ENVIRONMENT_MACOS=$CIBW_ENVIRONMENT_COMMON MACOSX_DEPLOYMENT_TARGET=10.9 CMAKE_OSX_ARCHITECTURES=\"$CMAKE_OSX_ARCHITECTURES\"" >> $GITHUB_ENV
         echo "CIBW_BEFORE_ALL_LINUX=pip install cmake && ln -s \$(which cmake) /usr/local/bin/cmake " >> $GITHUB_ENV
         echo "CIBW_BEFORE_ALL_WINDOWS=$CIBW_BEFORE_ALL_COMMON --config Release" >> $GITHUB_ENV
-        echo "CIBW_BEFORE_ALL_MACOS=brew install Homebrew/core/libomp && ln -sr /usr/local/Cellar/libomp/11.1.0/ /usr/local/opt/libomp" >> $GITHUB_ENV
+        echo "CIBW_BEFORE_ALL_MACOS=brew install Homebrew/core/libomp && ln -s /usr/local/Cellar/libomp/11.1.0/* /usr/local/opt/libomp" >> $GITHUB_ENV
 
 
     - name: Build wheel
