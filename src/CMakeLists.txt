@@ -106,7 +106,7 @@ ENDIF()
 
 
 ## LINK
-TARGET_LINK_LIBRARIES(setvoronoilib  PRIVATE OpenMP::OpenMP_CXX voro++)
+TARGET_LINK_LIBRARIES(setvoronoilib  PRIVATE OpenMP::OpenMP_CXX voro++ stdc++fs)
 
 TARGET_LINK_LIBRARIES(setvoronoi PRIVATE pybind11::module OpenMP::OpenMP_CXX setvoronoilib) 
 
