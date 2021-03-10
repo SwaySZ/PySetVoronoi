@@ -15,18 +15,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build wheels
-      uses: joerick/cibuildwheel@v1.10.0
-      # to supply options, put them in 'env', like:
-      # env:
-      #   CIBW_SOME_OPTION: value
-    - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.8
-      with:
-        cmake-version: '3.12.x'
     - name: Set up Python 
       uses: actions/setup-python@v2
       with:
         python-version: ${{matrix.python}}
+
+    - name: Install cibuildwheel
+      run: python3 -m pip install cibuildwheel==1.10.0
+
+    - name: Build wheel
+      run: python3 -m cibuildwheel --output-dir wheelhouse
     # - name: Create Build Environment
     #   run: cmake -E make_directory ${{github.workspace}}/build
 
@@ -47,16 +45,16 @@ jobs:
     #   run: |
     #     mkdir dist
     #     cp install/lib/* dist/
-    - name: Install pypa/build
-      run: python3 -m pip install build --user
+    # - name: Install pypa/build
+    #   run: python3 -m pip install build --user
 
-    - name: Build a binary wheel and a source tarball
-      run: >-
-        python3 -m
-        build
-        --sdist
-        --wheel
-        --outdir dist/
+    # - name: Build a binary wheel and a source tarball
+    #   run: >-
+    #     python3 -m
+    #     build
+    #     --sdist
+    #     --wheel
+    #     --outdir dist/
 
     
     - name: Publish to TestPyPI
