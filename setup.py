@@ -34,6 +34,10 @@ class CMakeBuild(build_ext):
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
+        if platform.system() == "Darwin":
+            cmake_args.append("-DOpenMP_CXX_FLAGS='-Xpreprocessor -fopenmp'")
+            print("hahah ")
+
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
 
