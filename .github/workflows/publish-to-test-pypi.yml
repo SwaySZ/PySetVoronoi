@@ -8,13 +8,13 @@ on:
 
 jobs:
   build-n-publish:
-    name: Build and publish PySetVoronoi to PyPI and TestPyPI
+    name: Wheel PySetVoronoi 
     #runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
         python: [3.7]
-        os: [ubuntu-latest,macos-latest,windows-latest]
+        os: [windows-latest] #[ubuntu-latest,macos-latest,windows-latest]
             
           #   cibw-arch: macosx_universal2
           # - runs-on: windows-latest
@@ -36,6 +36,13 @@ jobs:
       #with:
         #install: mingw-w64-x86_64-cmake
       if: matrix.os == 'windows-latest'
+
+    - name: Windows
+      shell: msys2 {0}
+      run: |
+          uname -a
+      if: matrix.os == 'windows-latest'
+
     # - name: Setup CMake
     #   uses: jwlawson/actions-setup-cmake@v1.8
     #   with:
