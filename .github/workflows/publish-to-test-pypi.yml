@@ -41,6 +41,8 @@ jobs:
       shell: msys2 {0}
       run: |
           uname -a
+          pacman -S mingw-w64-x86_64-cmake
+          which cmake
       if: matrix.os == 'windows-latest'
 
     # - name: Setup CMake
