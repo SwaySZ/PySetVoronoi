@@ -8,30 +8,21 @@ on:
 
 jobs:
   build-n-publish:
-    #name: Build and publish PySetVoronoi to PyPI and TestPyPI
+    name: Build and publish PySetVoronoi to PyPI and TestPyPI
     #runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
         python: [3.7]
-        include:
-          - runs-on: ubuntu-latest
-            cibw-arch: manylinux_x86_64
-          # - runs-on: ubuntu-latest
-          #   cibw-arch: manylinux_i686
-          - runs-on: macos-latest
-            cibw-arch: macosx_x86_64
-          # - runs-on: macos-latest
-          #   cibw-arch: macosx_arm64
-          # - runs-on: macos-latest
+        os: [ubuntu-latest,macos-latest,windows-latest]
+            
           #   cibw-arch: macosx_universal2
           # - runs-on: windows-latest
           #   cibw-arch: win_amd64
           # - runs-on: windows-latest
           #   cibw-arch: win32
           #   python-arch: x86
-    name: Wheels • ${{ matrix.cibw-arch }}
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
    
@@ -101,7 +92,7 @@ jobs:
           brew install Homebrew/core/libomp
           ln -s /usr/local/Cellar/libomp/11.1.0/ /usr/local/opt/libomp
           ls  /usr/local/opt/libomp
-      if: matrix.runs-on == 'macos-latest'
+      if: matrix.os == 'macos-latest'
 
     - name: Build
       run: |
