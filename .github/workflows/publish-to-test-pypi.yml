@@ -102,12 +102,13 @@ jobs:
           ln -s /usr/local/Cellar/libomp/11.1.0/ /usr/local/opt/libomp
           ls  /usr/local/opt/libomp
       if: matrix.runs-on == 'macos-latest'
+    - name: Build
+      run: python3 setup.py build
+    # - name: Install pypa/build
+    #   run: python3 -m pip install build --user
 
-    - name: Install pypa/build
-      run: python3 -m pip install build --user
-
-    - name: Build a binary wheel and a source tarball
-      run: python3 -m build --wheel --outdir wheelhouse/
+    # - name: Build a binary wheel and a source tarball
+    #   run: python3 -m build --wheel --outdir wheelhouse/
 
     - name: Upload wheels
       uses: actions/upload-artifact@v2
