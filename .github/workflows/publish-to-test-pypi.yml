@@ -34,9 +34,9 @@ jobs:
 
     - uses: msys2/setup-msys2@v2
       with:
-        update: true
         install: >-
           cmake
+          g++
           python3-pip
       if: matrix.os == 'windows-latest'
 
@@ -108,6 +108,12 @@ jobs:
           ln -s /usr/local/Cellar/libomp/11.1.0/ /usr/local/opt/libomp
           ls  /usr/local/opt/libomp
       if: matrix.os == 'macos-latest'
+
+    - name: Build for unix-like os
+      run: |
+          pip3 install wheel
+          python3 setup.py bdist_wheel --universal
+      if: matrix.os != 'windows-latest'
 
     - name: Build
       shell: msys2 {0}
