@@ -33,11 +33,11 @@ jobs:
         architecture: ${{ matrix.python-arch }}
 
     - uses: msys2/setup-msys2@v2
-      # with:
-      #   install: >-
-      #     cmake
-      #     gcc
-      #     python3-pip
+      with:
+        install: >-
+          cmake
+          gcc
+          python3-pip
       if: matrix.os == 'windows-latest'
 
     - name: Windows
@@ -115,26 +115,12 @@ jobs:
           python3 setup.py bdist_wheel --universal
       if: matrix.os != 'windows-latest'
 
-    # - name: Build
-    #   shell: msys2 {0}
-    #   run: |
-    #       pip3 install wheel
-    #       python3 setup.py bdist_wheel --universal
-    #   if: matrix.os == 'windows-latest'
-    - name: Configure CMake for Win
-      shell: bash
-      working-directory: ${{github.workspace}}/build
-      run: |
-          cmake ${GITHUB_WORKSPACE}/lightDEM -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DPython_ADDITIONAL_VERSIONS=${{matrix.python}} \
-          -G "MSYS Makefiles"
-      if: matrix.os == 'windows-latest'
-
     - name: Build
-      working-directory: ${{github.workspace}}/build
+      shell: msys2 {0}
       run: |
-           make
-           make install
+          pip3 install wheel
+          python3 setup.py bdist_wheel --universal
+      if: matrix.os == 'windows-latest'
     # - name: Install pypa/build
     #   run: python3 -m pip install build --user
 
