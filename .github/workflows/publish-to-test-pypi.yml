@@ -110,7 +110,7 @@ jobs:
       shell: msys2 {0}
       run: |
           curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-          python get-pip.py
+          python3 get-pip.py
           pip3 install wheel
           python3 setup.py bdist_wheel --universal
       if: matrix.os == 'windows-latest'
