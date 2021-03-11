@@ -44,7 +44,6 @@ jobs:
       shell: msys2 {0}
       run: |
           uname -a
-          which cmake
       if: matrix.os == 'windows-latest'
 
     # - name: Setup CMake
