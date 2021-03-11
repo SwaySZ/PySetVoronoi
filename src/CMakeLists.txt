@@ -52,15 +52,7 @@ IF (LINUX)
   SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  -save-temps -ftrack-macro-expansion=0 -fopenmp")
 ENDIF()
 
-MESSAGE(STATUS "GCC VERSION: ${CMAKE_CXX_COMPILER_VERSION}")
 
-IF ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8)
-    ADD_DEFINITIONS(-DSTDC17)
-    MESSAGE(STATUS "GCC >= 8.0")
-    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  --enable-libstdcxx-filesystem-ts")
-  endif()
-ENDIF()
 
 set(DEBUG OFF)
 IF (DEBUG)
@@ -77,6 +69,16 @@ SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++17 -Wno-deprecated-declarations
 
 find_package(OpenMP REQUIRED)
 MESSAGE(STATUS "OpenMP FOUND: ${OpenMP_FOUND} version: ${OpenMP_VERSION}")
+
+MESSAGE(STATUS "GCC VERSION: ${CMAKE_CXX_COMPILER_VERSION}")
+
+IF ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8)
+    ADD_DEFINITIONS(-DSTDC17)
+    MESSAGE(STATUS "GCC >= 8.0")
+    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  --enable-libstdcxx-filesystem-ts")
+  endif()
+ENDIF()
 
 #set include and lib for openMP on MacOS
 IF(APPLE)
