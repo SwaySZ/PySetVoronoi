@@ -34,7 +34,7 @@ jobs:
 
     - uses: msys2/setup-msys2@v2
       with:
-        install: mingw-w64-x86_64-cmake
+        install: mingw-w64-x86_64-cmake, python3-pip
       if: matrix.os == 'windows-latest'
 
     - name: Windows
