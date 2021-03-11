@@ -26,10 +26,17 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
-#include <filesystem>
 
 #include <iterator>
 #include <regex>
+
+#ifdef STDC17
+  #include <filesystem> //use experimental for gcc > 8.0
+  namespace fs = std::filesystem;
+#else
+  #include <experimental/filesystem> //use experimental for gcc below 8.0
+  namespace fs = std::experimental::filesystem;
+#endif
 
 CellFactory::CellFactory(){
   searchRadius = 4.0;
@@ -51,8 +58,8 @@ CellFactory::CellFactory(){
 }
 bool CellFactory::checkCreateFolder(std::string target){
   if(target.length() == 0){std::cout<<"Directory is not created!"<<std::endl;return false;}
-  if(! std::filesystem::exists(target)){// the target folder doest not exist, and create it.
-    bool ret = std::filesystem::create_directory(target);
+  if(! fs::exists(target)){// the target folder doest not exist, and create it.
+    bool ret = fs::create_directory(target);
     if(ret){std::cout<<"Folder "<<target<<" is created."<<std::endl;}
     else{std::cout<<"Failed to create Folder "<<target<<std::endl;}
     return ret;
@@ -257,7 +264,7 @@ void CellFactory::processing(void){
     infile.close();
   }
   outfile.close();
-  std::uintmax_t n = std::filesystem::remove_all(out_folder+"/tmp/");
+  std::uintmax_t n = fs::remove_all(out_folder+"/tmp/");
   std::cout << "Deleted " << n << " files or directories\n";
   #endif
   std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();

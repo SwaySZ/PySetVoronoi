@@ -1,5 +1,5 @@
 project(setvoronoi CXX)
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 
 ##########   PYBIND MODULE ##########
 
@@ -36,7 +36,6 @@ if(APPLE)
       set(OpenMP_C_LIB_NAMES "omp")
       set(OpenMP_omp_LIBRARY /usr/local/opt/libomp/lib/libomp.dylib)
   endif()
-
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang\$")
       set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp")
       set(OpenMP_CXX_LIB_NAMES "omp")
@@ -45,9 +44,15 @@ if(APPLE)
 
 endif()
 
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
+
 IF (LINUX)
   SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  -save-temps -ftrack-macro-expansion=0 -fopenmp")
 ENDIF()
+
+
 
 set(DEBUG OFF)
 IF (DEBUG)
@@ -64,6 +69,18 @@ SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++17 -Wno-deprecated-declarations
 
 find_package(OpenMP REQUIRED)
 MESSAGE(STATUS "OpenMP FOUND: ${OpenMP_FOUND} version: ${OpenMP_VERSION}")
+
+MESSAGE(STATUS "GCC VERSION: ${CMAKE_CXX_COMPILER_VERSION}")
+
+IF ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8)
+    ADD_DEFINITIONS(-DSTDC17)
+    MESSAGE(STATUS "GCC >= 8.0")
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    #SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  --enable-libstdcxx-filesystem-ts=yes")
+  endif()
+ENDIF()
 
 #set include and lib for openMP on MacOS
 IF(APPLE)
@@ -87,14 +104,14 @@ INCLUDE_DIRECTORIES(${VORO_INCLUDE})
 FILE(GLOB SRC_LIB "*.cpp")
 
 FILE(GLOB VORO_SRC_LIB  "${CMAKE_SOURCE_DIR}/../thirdparty/voro++/src/voro++.cc")
-ADD_LIBRARY(voro++ SHARED ${VORO_SRC_LIB})
+ADD_LIBRARY(voro++ STATIC ${VORO_SRC_LIB})
 SET_TARGET_PROPERTIES(voro++ PROPERTIES PREFIX "" INSTALL_RPATH "$ORIGIN;")
 TARGET_LINK_LIBRARIES(voro++)
-INSTALL(TARGETS voro++ DESTINATION ${INSTALL_LIBPATH})
+#INSTALL(TARGETS voro++ DESTINATION ${INSTALL_LIBPATH})
 
 ## ADD LIBRARY
 add_library(setvoronoi MODULE ${CMAKE_CURRENT_SOURCE_DIR}/pymodule/SetVoronoi.cpp)
-ADD_LIBRARY(setvoronoilib SHARED ${SRC_LIB})
+ADD_LIBRARY(setvoronoilib STATIC ${SRC_LIB})
 SET_TARGET_PROPERTIES(setvoronoilib  PROPERTIES INSTALL_RPATH "$ORIGIN" )
 
 IF(LINUX)
@@ -106,14 +123,26 @@ ENDIF()
 
 
 ## LINK
+IF(APPLE)
 TARGET_LINK_LIBRARIES(setvoronoilib  PRIVATE OpenMP::OpenMP_CXX voro++)
+ELSE(APPLE)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8)
+    TARGET_LINK_LIBRARIES(setvoronoilib  PRIVATE OpenMP::OpenMP_CXX voro++ stdc++fs)
+  else()
+    TARGET_LINK_LIBRARIES(setvoronoilib  PRIVATE OpenMP::OpenMP_CXX voro++ stdc++fs)
+  endif()
+ENDIF()
+
 
 TARGET_LINK_LIBRARIES(setvoronoi PRIVATE pybind11::module OpenMP::OpenMP_CXX setvoronoilib) 
 
-SET_TARGET_PROPERTIES(setvoronoi PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}" INSTALL_RPATH "${INSTALL_LIBPATH};$ORIGIN;")
-
+#IF(MINGW)
+  SET_TARGET_PROPERTIES(setvoronoi PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}" SUFFIX "${PYTHON_MODULE_EXTENSION}" INSTALL_RPATH "${DEM_INSTALL_LIBPATH};$ORIGIN;")
+#ELSE(MINGW)
+#SET_TARGET_PROPERTIES(setvoronoi PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}" INSTALL_RPATH "${INSTALL_LIBPATH};$ORIGIN;")
+#ENDIF()
 ## INSTALL
-INSTALL(TARGETS setvoronoilib DESTINATION ${INSTALL_LIBPATH})
+#INSTALL(TARGETS setvoronoilib DESTINATION ${INSTALL_LIBPATH})
 INSTALL(TARGETS setvoronoi DESTINATION ${INSTALL_LIBPATH})
 
 

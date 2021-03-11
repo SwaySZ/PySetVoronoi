@@ -1,0 +1,17 @@
+Metadata-Version: 1.1
+Name: setvoronoi
+Version: 0.9.0
+Summary: A Python interface for Set Voronoi Tessellation.
+Home-page: https://github.com/SwaySZ/PySetVoronoi
+Author: Sway Zhao
+Author-email: zhswee@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Intended Audience :: Science/Research
+Classifier: Development Status :: 5 - Production/Stable

@@ -1,0 +1,6 @@
+README.md
+setup.py
+setvoronoi.egg-info/PKG-INFO
+setvoronoi.egg-info/SOURCES.txt
+setvoronoi.egg-info/dependency_links.txt
+setvoronoi.egg-info/top_level.txt
