@@ -33,8 +33,8 @@ jobs:
         architecture: ${{ matrix.python-arch }}
 
     - uses: msys2/setup-msys2@v2
-      with:
-        install: cmake, python3-pip
+      #with:
+      #  install: cmake, python3-pip
         #install: mingw-w64-x86_64-cmake, python3-pip
       if: matrix.os == 'windows-latest'
 
@@ -110,6 +110,7 @@ jobs:
     - name: Build
       shell: msys2 {0}
       run: |
+          pacman -S python3-pip
           pip3 install wheel
           python3 setup.py bdist_wheel --universal
       if: matrix.os == 'windows-latest'
