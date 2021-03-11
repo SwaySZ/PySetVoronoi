@@ -23,8 +23,7 @@ jobs:
         python-version: ${{matrix.python}}
         
     - uses: msys2/setup-msys2@v2
-      with:
-        install: make
+      #with:
         #install: mingw-w64-x86_64-cmake
       if: matrix.os == 'windows-latest'
 
@@ -57,7 +56,8 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
           cmake ${GITHUB_WORKSPACE}/src -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DPython_ADDITIONAL_VERSIONS=${{matrix.python}} \
+          -DPython_ADDITIONAL_VERSIONS=${{matrix.python}} 
+          -DCMAKE_CXX_COMPILER=clang++ \
           -G "MSYS Makefiles"
       if: matrix.os == 'windows-latest'
 
