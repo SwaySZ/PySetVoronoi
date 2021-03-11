@@ -99,7 +99,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: libs
-          path: libhouse
+          path: libshouse
 
       - name: Get release name
         id: get_version
