@@ -44,8 +44,16 @@ if(APPLE)
 
 endif()
 
+
+
 IF (LINUX)
   SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  -save-temps -ftrack-macro-expansion=0 -fopenmp")
+ENDIF()
+
+IF (LINUX)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.2)
+    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  -DSTDC17")
+  endif()
 ENDIF()
 
 set(DEBUG OFF)

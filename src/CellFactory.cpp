@@ -26,12 +26,17 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
-#include <experimental/filesystem> //use experimental for gcc below 8.0
 
 #include <iterator>
 #include <regex>
 
-namespace fs = std::experimental::filesystem;
+#ifdef STDC17
+  #include <filesystem> //use experimental for gcc > 8.0
+  namespace fs = std::filesystem;
+#else
+  #include <experimental/filesystem> //use experimental for gcc below 8.0
+  namespace fs = std::experimental::filesystem;
+#endif
 
 CellFactory::CellFactory(){
   searchRadius = 4.0;
