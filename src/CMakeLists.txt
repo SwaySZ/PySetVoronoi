@@ -76,7 +76,7 @@ IF ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
   if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8)
     ADD_DEFINITIONS(-DSTDC17)
     MESSAGE(STATUS "GCC >= 8.0")
-    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  --enable-libstdcxx-filesystem-ts")
+    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  --enable-libstdcxx-filesystem-ts=yes")
   endif()
 ENDIF()
 
