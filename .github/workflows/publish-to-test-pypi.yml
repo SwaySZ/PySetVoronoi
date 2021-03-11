@@ -34,7 +34,7 @@ jobs:
 
     - uses: msys2/setup-msys2@v2
       with:
-        install: mingw-w64-x86_64-cmake
+        install: mingw-w64-x86_64-cmake, mingw-w64-x86_64-python3-pip
       if: matrix.os == 'windows-latest'
 
     - name: Windows
@@ -109,8 +109,6 @@ jobs:
     - name: Build
       shell: msys2 {0}
       run: |
-          curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-          python3 get-pip.py
           pip3 install wheel
           python3 setup.py bdist_wheel --universal
       if: matrix.os == 'windows-latest'
