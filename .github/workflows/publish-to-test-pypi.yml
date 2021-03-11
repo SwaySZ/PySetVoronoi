@@ -120,6 +120,8 @@ jobs:
     #       pip3 install wheel
     #       python3 setup.py bdist_wheel --universal
     #   if: matrix.os == 'windows-latest'
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
     - name: Configure CMake for Win
       shell: bash
       working-directory: ${{github.workspace}}/build
