@@ -121,8 +121,14 @@ ENDIF()
 IF(APPLE)
 TARGET_LINK_LIBRARIES(setvoronoilib  PRIVATE OpenMP::OpenMP_CXX voro++)
 ELSE(APPLE)
-TARGET_LINK_LIBRARIES(setvoronoilib  PRIVATE OpenMP::OpenMP_CXX voro++ stdc++fs)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8)
+    TARGET_LINK_LIBRARIES(setvoronoilib  PRIVATE OpenMP::OpenMP_CXX voro++)
+  else()
+    TARGET_LINK_LIBRARIES(setvoronoilib  PRIVATE OpenMP::OpenMP_CXX voro++ stdc++fs)
+  endif()
 ENDIF()
+
+
 TARGET_LINK_LIBRARIES(setvoronoi PRIVATE pybind11::module OpenMP::OpenMP_CXX setvoronoilib) 
 
 #IF(MINGW)
