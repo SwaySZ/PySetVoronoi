@@ -44,15 +44,19 @@ if(APPLE)
 
 endif()
 
-
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
 
 IF (LINUX)
   SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  -save-temps -ftrack-macro-expansion=0 -fopenmp")
 ENDIF()
 
+
 IF (LINUX)
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8.0)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8)
     ADD_DEFINITIONS(-DSTDC17)
+    MESSAGE(STATUS "GCC >= 8.0")
   endif()
 ENDIF()
 
