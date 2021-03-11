@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest] #[ubuntu-latest, macos-latest, windows-latest] # #[ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest] # #[ubuntu-latest, macos-latest]
         python: [3.7]
 
     steps:
@@ -24,7 +24,7 @@ jobs:
         
     - uses: msys2/setup-msys2@v2
       with:
-        install: make mingw-w64-x86_64-cmake mingw-w64-x86_64-clang
+        install: make mingw-w64-x86_64-cmake
       if: matrix.os == 'windows-latest'
 
     - name: Windows
@@ -56,7 +56,6 @@ jobs:
       run: |
           cmake ${GITHUB_WORKSPACE}/src -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DPython_ADDITIONAL_VERSIONS=${{matrix.python}} \
-          -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang \
           -G "MSYS Makefiles"
       if: matrix.os == 'windows-latest'
 
